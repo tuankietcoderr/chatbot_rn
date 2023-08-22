@@ -1,0 +1,20 @@
+[
+  {
+    "id": "0",
+    "room_id": "1",
+    "content": "Hi, you can ask me anything.",
+    "is_bot_chat": true
+  },
+  {
+    "id": "1",
+    "room_id": "1",
+    "content": "test",
+    "is_bot_chat": false
+  },
+  {
+    "id": "2",
+    "room_id": "1",
+    "content": "You're testing me? This is some question you can ask me.",
+    "is_bot_chat": true
+  }
+]
