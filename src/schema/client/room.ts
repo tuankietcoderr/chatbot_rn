@@ -1,4 +1,5 @@
 export interface IRoom {
-  id: string;
-  title: string;
+  _id?: string;
+  title?: string;
+  shortDescription?: string;
 }

@@ -8,8 +8,9 @@ import AppFonts from "@constants/font";
 import AppFontSizes from "@constants/font-size";
 import AppRoutes from "@constants/route";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Linking,
@@ -21,83 +22,101 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { TypingAnimation } from "react-native-typing-animation";
+import { useFocusEffect, useRoute } from "@react-navigation/core";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppCommon } from "@/constants/common";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { selectUser } from "@/store/features/auth/auth-selector";
 import { Ionicons } from "@expo/vector-icons";
+import { MainHeaderRight, MainHeaderTitle } from "@/components/MainHeader";
+import { selectRoom } from "@/store/features/room/room-selector";
+import { State } from "@/constants/state";
+import { createRoomThunk } from "@/store/features/room/room-thunk";
+import {
+  getChatsOfRoomThunk,
+  sendChatThunk,
+} from "@/store/features/chat/chat-thunk";
+import { selectChat } from "@/store/features/chat/chat-selector";
+import { ModalProvider } from "@/context/ModalContext";
+
+const example_response: IAnswer = {
+  id: "1",
+  answer: "test",
+  ref: {
+    link: "https://www.google.com",
+    title: "Google",
+  },
+  relatedQ: ["Test1", "Test2", "Test3", "Test4"],
+  relatedTthc: ["Test1", "Test2", "Test3", "Test4"],
+};
 
 const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
-  const HeaderRight = () => {
-    const onPress = () => {
-      navigation.navigate(AppRoutes.CHATS);
-    };
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <Image
-          source={require("@assets/icons/chat_list.png")}
-          style={{ width: 30, height: 30 }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
-    );
+  const dispatch = useAppDispatch();
+  const { chats, status: chatStatus } = useAppSelector(selectChat);
+  const isChatLoading = chatStatus === State.LOADING;
+  const params = useRoute<any>();
+  const roomId = params?.params?.roomId;
+  const [refreshing, setRefreshing] = useState(false);
+  const { chosenRelated, related, setRelated, setChosenRelated } =
+    useBotDataContext();
+
+  const onRefresh = async () => {
+    dispatch(getChatsOfRoomThunk(roomId))
+      .then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          if (res.payload.success) {
+            setRefreshing(false);
+          }
+        }
+      })
+      .finally(() => {
+        setRefreshing(false);
+      });
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      (async function () {
+        const token = await AsyncStorage.getItem(AppCommon.ACCESS_TOKEN);
+        if (!token) {
+          navigation.replace(AppRoutes.SIGNIN);
+          return;
+        }
+      })();
+    }, [])
+  );
+
   useEffect(() => {
     navigation.setOptions({
       headerBackVisible: false,
-      headerRight: () => <HeaderRight />,
-      headerShadowVisible: false,
-      headerTitle: () => (
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <Image
-            source={require("@assets/logo/logo_4x.png")}
-            style={{
-              width: 40,
-              height: 40,
-            }}
-            resizeMode="contain"
-          />
-          <Text
-            style={{
-              fontFamily: AppFonts.bold,
-              fontSize: AppFontSizes.h4,
-              color: AppColors.primary,
-            }}
-          >
-            Chatbot
-          </Text>
-        </View>
+      headerRight: () => (
+        <MainHeaderRight navigation={navigation} showChatList />
       ),
+      headerTitle: () => <MainHeaderTitle />,
       headerTitleStyle: {
         fontFamily: AppFonts.bold,
         fontSize: AppFontSizes.h4,
       },
     });
   }, []);
-  const test: IChatItem = {
-    id: "1",
-    roomId: "1",
-    content: "Hi, you can ask me anything.",
-    isBotChat: true,
-  };
 
-  const example_response: IAnswer = {
-    id: "1",
-    answer: "test",
-    ref: {
-      link: "https://www.google.com",
-      title: "Google",
-    },
-    relatedQ: ["Test1", "Test2", "Test3", "Test4"],
-    relatedTthc: ["Test1", "Test2", "Test3", "Test4"],
-  };
+  useEffect(() => {
+    setRelated([]);
+    setChosenRelated(null);
+    (async function () {
+      if (!roomId) return;
+      dispatch(getChatsOfRoomThunk(roomId)).then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          if (res.payload.success) {
+          }
+        }
+      });
+    })();
+  }, [roomId]);
 
   const [message, setMessage] = React.useState<string>("");
   const [disableChat, setDisableChat] = React.useState<boolean>(false);
-  const { chosenRelated, related, setRelated, setChosenRelated } =
-    useBotDataContext();
+
   const flatListRef = React.useRef<FlatList>(null);
 
   const onInputChange = (text: string) => {
@@ -107,43 +126,55 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   const onPressSend = async (_message: string) => {
     if (_message.length === 0) return;
     setMessage("");
-    setChats((prev) => {
-      return [
-        ...prev,
-        {
-          id: prev[prev.length - 1].id + 1 + "",
-          roomId: "1",
-          content: _message,
-          isBotChat: false,
-        },
-      ];
+
+    onSend(_message).then(async () => {
+      await onResponse();
     });
-    setDisableChat(true);
-    setTimeout(() => {
-      onResponse();
-      setDisableChat(false);
-    }, 3000);
+  };
+
+  const onSend = async (message: string) => {
+    dispatch(
+      sendChatThunk({
+        content: message,
+        isBotChat: false,
+        roomId,
+      })
+    ).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        if (res.payload.success) {
+          setDisableChat(true);
+        }
+      }
+    });
   };
 
   const onResponse = async () => {
-    setChats((prev) => {
-      return [
-        ...prev,
-        {
-          id: prev[prev.length - 1].id + 1 + "",
-          roomId: "1",
-          content: example_response.answer,
-          isBotChat: true,
+    // setDisableChat(true);
+    dispatch(
+      sendChatThunk({
+        content: example_response.answer,
+        isBotChat: true,
+        roomId,
+        reference: {
+          link: example_response.ref.link,
+          title: example_response.ref.title,
         },
-      ];
-    });
-    setChosenRelated("all");
+      })
+    )
+      .then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          if (res.payload.success) {
+            setChosenRelated("all");
+          }
+        }
+      })
+      .finally(() => {
+        setDisableChat(false);
+      });
   };
 
-  const [chats, setChats] = React.useState<IChatItem[]>([test]);
-
   useEffect(() => {
-    if (chats.length > 0) {
+    if (chats && chats.length > 0) {
       flatListRef.current && flatListRef.current?.scrollToEnd();
     }
   }, []);
@@ -171,133 +202,121 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   return (
     <View style={styles.container}>
       <MainLayout>
-        <FlatList
-          ref={flatListRef}
-          onContentSizeChange={() => {
-            flatListRef.current && flatListRef.current?.scrollToEnd();
-          }}
-          data={chats}
-          renderItem={({ item }) => <ChatItem chat={item} />}
-          contentContainerStyle={{
-            gap: 10,
-            marginTop: 10,
-          }}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={
-            <View
-              style={{
-                marginBottom: 40,
-              }}
-            >
-              {disableChat && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 40,
-                  }}
-                >
-                  <TypingAnimation
-                    dotColor={AppColors.gray}
-                    dotMargin={6}
-                    dotX={14}
-                    dotSpeed={0.25}
-                  />
-                  <Text
-                    style={{
-                      ...styles.text,
-                      color: AppColors.gray,
-                    }}
-                  >
-                    Generating answer
-                  </Text>
-                </View>
-              )}
-              {chats[chats.length - 1].isBotChat && chats.length > 1 && (
-                <Text
-                  style={{
-                    fontFamily: AppFonts.regular,
-                    padding: 10,
-                    backgroundColor: AppColors.onPrimary,
-                    alignSelf: "flex-start",
-                    borderRadius: 8,
-                    maxWidth: width * 0.7,
-                    marginBottom: 10,
-                  }}
-                >
-                  Reference:{" "}
-                  <Text
-                    onPress={() => {
-                      Linking.openURL(example_response.ref.link).catch((err) =>
-                        console.error("Couldn't load page", err)
-                      );
-                    }}
-                    style={{
-                      color: AppColors.primary,
-                      textDecorationColor: AppColors.primary,
-                      textDecorationLine: "underline",
-                    }}
-                  >
-                    {example_response.ref.title}
-                  </Text>
-                </Text>
-              )}
-              {chats[chats.length - 1].isBotChat && chosenRelated === "all" && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    gap: 10,
-                  }}
-                >
-                  <TouchableOpacity
-                    style={styles.relatedBtn}
-                    onPress={onPressQ}
-                  >
-                    <Text style={styles.relatedText}>Related questions</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.relatedBtn}
-                    onPress={onPressAP}
-                  >
-                    <Text style={styles.relatedText}>
-                      Related administrative procedures
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-              {chats[chats.length - 1].isBotChat &&
-                chosenRelated !== "all" &&
-                chosenRelated !== null && (
+        {!isChatLoading ? (
+          <FlatList
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            ref={flatListRef}
+            onContentSizeChange={() => {
+              flatListRef.current && flatListRef.current?.scrollToEnd();
+            }}
+            data={chats}
+            renderItem={({ item }) => (
+              <ModalProvider>
+                <ChatItem chat={item} />
+              </ModalProvider>
+            )}
+            contentContainerStyle={{
+              gap: 10,
+              marginTop: 10,
+            }}
+            keyExtractor={(item) => item._id}
+            showsVerticalScrollIndicator={false}
+            ListFooterComponent={
+              <View
+                style={{
+                  marginBottom: disableChat ? 120 : 80,
+                }}
+              >
+                {disableChat && (
                   <View
                     style={{
                       flexDirection: "row",
-                      flexWrap: "wrap",
-                      maxWidth: width * 0.7,
-                      gap: 10,
+                      gap: 40,
                     }}
                   >
-                    {related.map((item, index) => (
-                      <TouchableOpacity
-                        style={styles.relatedBtn}
-                        onPress={() => onPressQoAP(item)}
-                        key={item + index.toString()}
-                      >
-                        <Text style={styles.text}>{item}</Text>
-                      </TouchableOpacity>
-                    ))}
+                    <TypingAnimation
+                      dotColor={AppColors.gray}
+                      dotMargin={6}
+                      dotX={14}
+                      dotSpeed={0.25}
+                    />
+                    <Text
+                      style={{
+                        ...styles.text,
+                        color: AppColors.gray,
+                      }}
+                    >
+                      Generating answer
+                    </Text>
                   </View>
                 )}
-            </View>
-          }
-        />
+                {!disableChat &&
+                  chats.length > 0 &&
+                  chats[chats.length - 1].isBotChat &&
+                  chosenRelated === "all" && (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        gap: 10,
+                      }}
+                    >
+                      <TouchableOpacity
+                        style={styles.relatedBtn}
+                        onPress={onPressQ}
+                      >
+                        <Text style={styles.relatedText}>
+                          Related questions
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.relatedBtn}
+                        onPress={onPressAP}
+                      >
+                        <Text style={styles.relatedText}>
+                          Related administrative procedures
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                {!disableChat &&
+                  chats.length > 0 &&
+                  chats[chats.length - 1].isBotChat &&
+                  chosenRelated !== "all" &&
+                  chosenRelated !== null && (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        maxWidth: width * 0.7,
+                        gap: 10,
+                      }}
+                    >
+                      {related.map((item, index) => (
+                        <TouchableOpacity
+                          style={styles.relatedBtn}
+                          onPress={() => onPressQoAP(item)}
+                          key={item + index.toString()}
+                        >
+                          <Text style={styles.text}>{item}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+              </View>
+            }
+          />
+        ) : (
+          <ActivityIndicator />
+        )}
       </MainLayout>
-      {disableChat && (
+      {/* {disableChat && (
         <TouchableOpacity style={styles.stopBtn} onPress={onPressStop}>
           <Ionicons name="stop-outline" size={24} color="black" />
           <Text style={styles.text}>Stop generating</Text>
         </TouchableOpacity>
-      )}
+      )} */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -310,9 +329,11 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
           editable={!disableChat}
           maxLength={150}
           onFocus={() => {
-            flatListRef.current?.scrollToIndex({
-              index: chats.length - 1,
-            });
+            if (chats.length > 0) {
+              flatListRef.current?.scrollToIndex({
+                index: chats.length - 1,
+              });
+            }
           }}
         />
         <TouchableOpacity

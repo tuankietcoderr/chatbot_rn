@@ -1,6 +1,9 @@
+import { IReference } from "../server/reference";
+
 export interface IChatItem {
-  id: string;
+  _id?: string;
   content: string;
   roomId: string;
   isBotChat: boolean;
+  reference?: IReference;
 }

@@ -21,6 +21,14 @@ import React from "react";
 import MainChat from "@screens/main/MainChat";
 import ChatList from "@screens/chats/ChatList";
 import { BotDataProvider } from "@/context/BotDataContext";
+import Signin from "@/screens/auth/Signin";
+import Signup from "@/screens/auth/Signup";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+import { DataProvider } from "@/context/DataContext";
+import Profile from "@/screens/profile/Profile";
+import { RootSiblingParent } from "react-native-root-siblings";
+import Save from "@/screens/profile/Save";
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
@@ -45,26 +53,37 @@ export default function App() {
   const initialRouteName = AppRoutes.ONBOARDING;
 
   return (
-    <BotDataProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName={initialRouteName}
-            screenOptions={{
-              animation: "fade",
-            }}
-          >
-            <Stack.Screen
-              name={AppRoutes.ONBOARDING}
-              component={OnboardingScreen}
-            />
-            <Stack.Screen name={AppRoutes.MAIN} component={MainChat} />
-            <Stack.Screen name={AppRoutes.CHATS} component={ChatList} />
-          </Stack.Navigator>
-        </NavigationContainer>
-        <StatusBar style="auto" />
-      </SafeAreaProvider>
-    </BotDataProvider>
+    <RootSiblingParent>
+      <Provider store={store}>
+        <DataProvider>
+          <BotDataProvider>
+            <SafeAreaProvider>
+              <NavigationContainer>
+                <Stack.Navigator
+                  initialRouteName={initialRouteName}
+                  screenOptions={{
+                    animation: "fade",
+                    headerShadowVisible: false,
+                  }}
+                >
+                  <Stack.Screen name={AppRoutes.SIGNIN} component={Signin} />
+                  <Stack.Screen name={AppRoutes.SIGNUP} component={Signup} />
+                  <Stack.Screen
+                    name={AppRoutes.ONBOARDING}
+                    component={OnboardingScreen}
+                  />
+                  <Stack.Screen name={AppRoutes.MAIN} component={MainChat} />
+                  <Stack.Screen name={AppRoutes.CHATS} component={ChatList} />
+                  <Stack.Screen name={AppRoutes.PROFILE} component={Profile} />
+                  <Stack.Screen name={AppRoutes.SAVED} component={Save} />
+                </Stack.Navigator>
+              </NavigationContainer>
+              <StatusBar style="auto" />
+            </SafeAreaProvider>
+          </BotDataProvider>
+        </DataProvider>
+      </Provider>
+    </RootSiblingParent>
   );
 }
 

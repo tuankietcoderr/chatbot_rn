@@ -14,7 +14,10 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSUUIDUsageDescription": "We need this to uniquely identify your device for app-related purposes."
+      }
     },
     "android": {
       "adaptiveIcon": {

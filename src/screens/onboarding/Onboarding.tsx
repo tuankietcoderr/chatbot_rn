@@ -15,11 +15,50 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/core";
 import * as SplashScreen from "expo-splash-screen";
 import AppRoutes from "@constants/route";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppCommon } from "@/constants/common";
+import { useAppDispatch } from "@/store/hook";
+import { getCurrentUserThunk } from "@/store/features/auth/auth-thunk";
 
 const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
+  const dispatch = useAppDispatch();
   useFocusEffect(
     useCallback(() => {
-      SplashScreen.hideAsync();
+      (async function () {
+        try {
+          const isFirstTime = await AsyncStorage.getItem(
+            AppCommon.IS_FIRST_TIME
+          );
+          const token = await AsyncStorage.getItem(AppCommon.ACCESS_TOKEN);
+          if (token) {
+            dispatch(getCurrentUserThunk()).then((res) => {
+              if (res.meta.requestStatus === "fulfilled") {
+                const success = res.payload.success;
+                if (success) {
+                  navigation.replace(AppRoutes.CHATS);
+                  setTimeout(() => {
+                    SplashScreen.hideAsync();
+                  }, 1000);
+                } else {
+                  AsyncStorage.removeItem(AppCommon.ACCESS_TOKEN);
+                }
+              }
+            });
+          } else {
+            if (isFirstTime === "true") {
+              // ! replace with true
+              navigation.replace(AppRoutes.SIGNIN);
+              setTimeout(() => {
+                SplashScreen.hideAsync();
+              }, 1000);
+            } else {
+              SplashScreen.hideAsync();
+            }
+          }
+        } catch {
+          SplashScreen.hideAsync();
+        }
+      })();
     }, [])
   );
 
@@ -27,7 +66,6 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
     navigation.setOptions({
       headerShown: false,
     });
-    navigation.navigate(AppRoutes.MAIN);
   }, []);
 
   const { width, height } = useWindowDimensions();
@@ -87,8 +125,10 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
 
   const [showStartButton, setShowStartButton] = React.useState(false);
 
-  const onPressStart = () => {
-    navigation.navigate(AppRoutes.MAIN);
+  const onPressStart = async () => {
+    await AsyncStorage.setItem(AppCommon.IS_FIRST_TIME, "true").then(() => {
+      navigation.navigate(AppRoutes.SIGNIN);
+    });
   };
 
   return (
