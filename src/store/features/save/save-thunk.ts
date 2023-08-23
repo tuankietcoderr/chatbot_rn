@@ -7,10 +7,13 @@ const getSavesThunk = createAsyncThunk("save/getSave", async () => {
   return response;
 });
 
-const addSaveThunk = createAsyncThunk("save/addSave", async (save: ISave) => {
-  const response = await addSave(save);
-  return response;
-});
+const addSaveThunk = createAsyncThunk(
+  "save/addSave",
+  async (chatId: string) => {
+    const response = await addSave(chatId);
+    return response;
+  }
+);
 
 const removeSaveThunk = createAsyncThunk(
   "save/removeSave",

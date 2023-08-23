@@ -11,6 +11,7 @@ import SavedItem from "@/components/SavedItem";
 import { randomUUID } from "@/lib/random";
 import Empty from "@/components/Empty";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
+import MainLayout from "@/layout/MainLayout";
 
 const Save = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -39,7 +40,7 @@ const Save = ({ navigation }: NativeStackScreenProps<any>) => {
   };
 
   return (
-    <View>
+    <MainLayout>
       <FlatList
         data={saves}
         renderItem={({ item }) => (
@@ -53,7 +54,7 @@ const Save = ({ navigation }: NativeStackScreenProps<any>) => {
         refreshing={refreshing}
         onRefresh={onRefresh}
       />
-    </View>
+    </MainLayout>
   );
 };
 

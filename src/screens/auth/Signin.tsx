@@ -74,7 +74,7 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
       if (res.meta.requestStatus === "fulfilled") {
         const success = res.payload.success;
         if (success) {
-          navigation.replace(AppRoutes.MAIN);
+          navigation.replace(AppRoutes.CHATS);
         } else {
           alert(res.payload.message);
         }

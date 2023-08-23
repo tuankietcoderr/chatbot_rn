@@ -11,9 +11,11 @@ const getSaves = async () => {
   }
 };
 
-const addSave = async (save: ISave) => {
+const addSave = async (id: string) => {
   try {
-    const response = await postRequest(API.SAVE.ADD, save);
+    const response = await postRequest(API.SAVE.ADD, {
+      chatId: id,
+    });
     return response;
   } catch (err) {
     return err;
@@ -21,6 +23,7 @@ const addSave = async (save: ISave) => {
 };
 
 const removeSave = async (id: string) => {
+  console.log({ id });
   try {
     const response = await deleteRequest(API.SAVE.REMOVE + "/" + id);
     return response;

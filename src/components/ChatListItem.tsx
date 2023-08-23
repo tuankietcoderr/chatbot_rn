@@ -119,6 +119,8 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center",
     justifyContent: "space-between",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: AppColors.gray,
   },
   title: {
     fontFamily: AppFonts.bold,

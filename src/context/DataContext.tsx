@@ -8,7 +8,7 @@ export const DataContext = createContext({});
 
 export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
-  const { isLogged } = useAppSelector(selectAuth);
+  const { isLogged, user, status } = useAppSelector(selectAuth);
   useEffect(() => {
     if (isLogged) {
       // dispatch all data
@@ -16,7 +16,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         Promise.all([dispatch(getRoomsThunk()), dispatch(getSavesThunk())]);
       })();
     }
-  }, [isLogged]);
+  }, [isLogged, user, status]);
   const value = {};
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };

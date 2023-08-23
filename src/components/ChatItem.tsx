@@ -14,17 +14,19 @@ import { useState } from "react";
 import { CHATBOT_INITIAL_STATE } from "@/constants/state";
 import { useModalContext } from "@/context/ModalContext";
 import SavedModal from "./SavedModal";
+import ReadMore from "@fawazahmed/react-native-read-more";
+import MyReadMoreText from "./MyReadMoreText";
+import { Ionicons } from "@expo/vector-icons";
+import { AppCommon } from "@/constants/common";
 
 type Props = {
   chat: IChatItem;
 };
 
 const ChatItem = ({ chat }: Props) => {
-  const { width } = useWindowDimensions();
-  const { content, isBotChat, reference } = chat;
+  const { content, isBotChat, reference, isSaved } = chat;
   const [showReference, setShowReference] = useState(false);
   const { isVisible, onModalClose, onModalOpen } = useModalContext();
-  console.log({ isVisible });
   const onPressChatItem = () => {
     setShowReference((prev) => !prev);
   };
@@ -39,42 +41,48 @@ const ChatItem = ({ chat }: Props) => {
         width: "100%",
       }}
     >
-      <SavedModal {...chat} />
-      <TouchableOpacity
-        style={{
-          backgroundColor: isBotChat ? AppColors.white : AppColors.primary,
-          alignSelf: isBotChat ? "flex-start" : "flex-end",
-          padding: 10,
-          maxWidth: width * 0.7,
-          borderRadius: 8,
-        }}
-        onPress={onPressChatItem}
-        disabled={!isBotChat}
-        onLongPress={onLongPressChatItem}
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: isBotChat ? AppColors.white : AppColors.primary,
+            alignSelf: isBotChat ? "flex-start" : "flex-end",
+          },
+        ]}
       >
-        <Text
-          style={[
-            styles.text,
-            {
-              color: isBotChat ? AppColors.black : AppColors.onPrimary,
-            },
-          ]}
-        >
-          {content}
-        </Text>
-      </TouchableOpacity>
-      {showReference && content !== CHATBOT_INITIAL_STATE && isBotChat && (
-        <Text
+        <TouchableOpacity
+          onPress={onPressChatItem}
+          disabled={!isBotChat}
+          onLongPress={onLongPressChatItem}
           style={{
-            fontFamily: AppFonts.regular,
-            padding: 10,
-            backgroundColor: AppColors.onPrimary,
-            alignSelf: "flex-start",
-            borderRadius: 8,
-            maxWidth: width * 0.7,
-            marginVertical: 10,
+            maxWidth: AppCommon.SCREEN_WIDTH * 0.6,
           }}
         >
+          <MyReadMoreText
+            numberOfLines={8}
+            style={[
+              styles.text,
+              {
+                color: isBotChat ? AppColors.black : AppColors.onPrimary,
+              },
+            ]}
+          >
+            {content}
+          </MyReadMoreText>
+        </TouchableOpacity>
+        {isSaved && (
+          <Ionicons
+            name="ios-bookmark"
+            size={18}
+            color={AppColors.primaryLight}
+            style={{
+              transform: [{ translateY: -14 }],
+            }}
+          />
+        )}
+      </View>
+      {showReference && content !== CHATBOT_INITIAL_STATE && isBotChat && (
+        <Text style={styles.referenceContainer}>
           Reference:{" "}
           {reference && Object.values(reference).every((value) => value) ? (
             <Text
@@ -92,6 +100,7 @@ const ChatItem = ({ chat }: Props) => {
           )}
         </Text>
       )}
+      <SavedModal {...chat} />
     </View>
   );
 };
@@ -99,6 +108,11 @@ const ChatItem = ({ chat }: Props) => {
 export default ChatItem;
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 10,
+    borderRadius: 8,
+    flexDirection: "row",
+  },
   text: {
     fontFamily: AppFonts.regular,
   },
@@ -106,5 +120,14 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
     textDecorationColor: AppColors.primary,
     textDecorationLine: "underline",
+  },
+  referenceContainer: {
+    fontFamily: AppFonts.regular,
+    padding: 10,
+    backgroundColor: AppColors.onPrimary,
+    alignSelf: "flex-start",
+    borderRadius: 8,
+    maxWidth: AppCommon.SCREEN_WIDTH * 0.7,
+    marginVertical: 10,
   },
 });

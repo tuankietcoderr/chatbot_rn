@@ -18,7 +18,12 @@ export const chatSlice = createSlice({
   initialState,
   reducers: {
     afterAddSave: (state, action: PayloadAction<IChatItem>) => {
-      state.chats = [...state.chats, action.payload];
+      state.chats = state.chats.map((chat) => {
+        if (chat._id === action.payload._id) {
+          return action.payload;
+        }
+        return chat;
+      });
     },
     afterRemoveSave: (
       state,
@@ -26,8 +31,14 @@ export const chatSlice = createSlice({
         _id: string;
       }>
     ) => {
-      state.chats = state.chats.filter((chat) => {
-        return chat._id !== action.payload._id;
+      state.chats = state.chats.map((chat) => {
+        if (chat._id === action.payload._id) {
+          return {
+            ...chat,
+            isSaved: false,
+          };
+        }
+        return chat;
       });
     },
   },
@@ -55,4 +66,4 @@ export const chatSlice = createSlice({
 
 export default chatSlice.reducer;
 
-export const {} = chatSlice.actions;
+export const { afterAddSave, afterRemoveSave } = chatSlice.actions;
