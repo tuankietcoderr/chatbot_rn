@@ -15,6 +15,7 @@ import AppFonts from "@/constants/font";
 import AppFontSizes from "@/constants/font-size";
 import { useAppDispatch } from "@/store/hook";
 import { modifyRoomInfoThunk } from "@/store/features/room/room-thunk";
+import Toast from "react-native-root-toast";
 
 const UpdateRoomModal = (room: IRoom) => {
   const { isVisible, onModalClose } = useModalContext();
@@ -34,7 +35,9 @@ const UpdateRoomModal = (room: IRoom) => {
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
-            alert("Update room successfully");
+            Toast.show("Update room successfully", {
+              position: Toast.positions.CENTER,
+            });
             onModalClose();
           } else {
             alert("Update room failed");

@@ -1,4 +1,6 @@
 import { selectAuth } from "@/store/features/auth/auth-selector";
+import { getCurrentUser } from "@/store/features/auth/auth-service";
+import { getCurrentUserThunk } from "@/store/features/auth/auth-thunk";
 import { getRoomsThunk } from "@/store/features/room/room-thunk";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";

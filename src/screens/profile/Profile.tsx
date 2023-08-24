@@ -1,3 +1,18 @@
+import InProfileItem from "@/components/InProfileItem";
+import AppColors from "@/constants/color";
+import AppFonts from "@/constants/font";
+import AppFontSizes from "@/constants/font-size";
+import AppRoutes from "@/constants/route";
+import MainLayout from "@/layout/MainLayout";
+import { selectUser } from "@/store/features/auth/auth-selector";
+import {
+  getCurrentUserThunk,
+  signOutThunk,
+} from "@/store/features/auth/auth-thunk";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { EvilIcons, Ionicons } from "@expo/vector-icons";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useEffect } from "react";
 import {
   Alert,
   Image,
@@ -5,21 +20,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from "react-native";
-import React from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import AppRoutes from "@/constants/route";
-import { signOutThunk } from "@/store/features/auth/auth-thunk";
-import { useEffect } from "react";
-import { EvilIcons, Ionicons } from "@expo/vector-icons";
-import AppFonts from "@/constants/font";
-import { selectUser } from "@/store/features/auth/auth-selector";
-import AppFontSizes from "@/constants/font-size";
-import AppColors from "@/constants/color";
-import InProfileItem from "@/components/InProfileItem";
-import MainLayout from "@/layout/MainLayout";
 import appData from "../../../app.json";
 
 const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
@@ -49,6 +50,13 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
 
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(getCurrentUserThunk());
+    }
+  }, []);
+
   async function onPressLogout() {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
@@ -89,14 +97,20 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
         <Text style={styles.username}>@{user?.username}</Text>
       </View>
       <MainLayout>
-        <InProfileItem
-          title="Saved answers"
-          to={AppRoutes.SAVED}
-          subTitle="All you saved answers"
-          icon={
-            <Ionicons name="ios-bookmarks-outline" size={24} color="black" />
-          }
-        />
+        <View
+          style={{
+            gap: 8,
+          }}
+        >
+          <InProfileItem
+            title="Saved answers"
+            to={AppRoutes.SAVED}
+            subTitle="All you saved answers"
+            icon={
+              <Ionicons name="ios-bookmarks-outline" size={24} color="black" />
+            }
+          />
+        </View>
       </MainLayout>
       <Text style={styles.version}>
         Version{" "}

@@ -55,26 +55,33 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
     navigation.navigate(AppRoutes.SIGNUP);
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const { username, password } = form;
     if (!username) {
-      return alert("Username is required");
+      alert("Username is required");
+      return false;
     }
     if (!password) {
-      return alert("Password is required");
+      alert("Password is required");
+      return false;
     }
+    return true;
   };
 
   const dispatch = useAppDispatch();
   const { status } = useAppSelector(selectAuth);
   const isLoading = status === State.LOADING;
   const onPressLetsGo = async () => {
-    validateForm();
+    if (!validateForm()) return;
     dispatch(signInThunk(form)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         const success = res.payload.success;
         if (success) {
           navigation.replace(AppRoutes.CHATS);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: AppRoutes.CHATS }],
+          });
         } else {
           alert(res.payload.message);
         }

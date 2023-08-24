@@ -25,7 +25,7 @@ type Props = {
 
 const ChatItem = ({ chat }: Props) => {
   const { content, isBotChat, reference, isSaved } = chat;
-  const [showReference, setShowReference] = useState(false);
+  const [showReference, setShowReference] = useState(true);
   const { isVisible, onModalClose, onModalOpen } = useModalContext();
   const onPressChatItem = () => {
     setShowReference((prev) => !prev);
@@ -128,6 +128,6 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: 8,
     maxWidth: AppCommon.SCREEN_WIDTH * 0.7,
-    marginVertical: 10,
+    marginTop: 10,
   },
 });

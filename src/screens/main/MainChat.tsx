@@ -291,7 +291,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                         flexDirection: "row",
                         flexWrap: "wrap",
                         maxWidth: width * 0.7,
-                        gap: 10,
+                        gap: 6,
                       }}
                     >
                       {related.map((item, index) => (
@@ -369,6 +369,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: AppFonts.regular,
+    fontSize: AppFontSizes.small,
+    color: AppColors.primary,
   },
   inputContainer: {
     flexDirection: "row",
@@ -390,14 +392,16 @@ const styles = StyleSheet.create({
   },
   relatedBtn: {
     backgroundColor: AppColors.onPrimary,
-    padding: 10,
-    borderRadius: 100,
-    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppColors.primary,
   },
   relatedText: {
     color: AppColors.primary,
     fontFamily: AppFonts.regular,
+    fontSize: AppFontSizes.small,
   },
   scrollToBottom: {
     padding: 16,

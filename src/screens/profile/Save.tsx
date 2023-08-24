@@ -12,6 +12,8 @@ import { randomUUID } from "@/lib/random";
 import Empty from "@/components/Empty";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
 import MainLayout from "@/layout/MainLayout";
+import { State } from "@/constants/state";
+import { ActivityIndicator } from "react-native";
 
 const Save = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -29,7 +31,8 @@ const Save = ({ navigation }: NativeStackScreenProps<any>) => {
     });
   }, []);
 
-  const { saves } = useAppSelector(selectSave);
+  const { saves, status } = useAppSelector(selectSave);
+  const isLoading = status === State.LOADING;
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -40,21 +43,31 @@ const Save = ({ navigation }: NativeStackScreenProps<any>) => {
   };
 
   return (
-    <MainLayout>
-      <FlatList
-        data={saves}
-        renderItem={({ item }) => (
-          <ModalProvider>
-            <SavedItem {...item} />
-          </ModalProvider>
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      <MainLayout>
+        {!isLoading ? (
+          <FlatList
+            data={saves}
+            renderItem={({ item }) => (
+              <ModalProvider>
+                <SavedItem {...item} />
+              </ModalProvider>
+            )}
+            ListEmptyComponent={<Empty content="Nothing here" />}
+            keyExtractor={(item) => item?._id || randomUUID()}
+            contentContainerStyle={{ marginTop: 16, rowGap: 8 }}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        ) : (
+          <ActivityIndicator size={"large"} />
         )}
-        ListEmptyComponent={<Empty content="Nothing here" />}
-        keyExtractor={(item) => item?._id || randomUUID()}
-        contentContainerStyle={{ marginTop: 16, rowGap: 8 }}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-      />
-    </MainLayout>
+      </MainLayout>
+    </View>
   );
 };
 

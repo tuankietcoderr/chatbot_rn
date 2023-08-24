@@ -15,10 +15,6 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: {
-    username: "",
-    password: "",
-  },
   status: State.IDLE,
   isLogged: false,
 };

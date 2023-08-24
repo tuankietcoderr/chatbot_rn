@@ -6,6 +6,7 @@ const AppRoutes = {
   CHATS: "Chats",
   PROFILE: "Profile",
   SAVED: "Saved",
+  USER_DATA: "UserData",
 };
 
 export default AppRoutes;

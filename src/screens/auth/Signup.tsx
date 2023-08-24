@@ -61,28 +61,33 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     });
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const { fullName, username, password, confirmPassword } = form;
 
     if (!fullName) {
-      return alert("Full name is required");
+      alert("Full name is required");
+      return false;
     }
 
     if (!username) {
-      return alert("Username is required");
+      alert("Username is required");
+      return false;
     }
 
     if (username.length < 6) {
-      return alert("Username must be at least 6 characters");
+      alert("Username must be at least 6 characters");
+      return false;
     }
 
     const usernameRegex = new RegExp("^\\w[\\w.]{2,18}\\w$");
     if (!usernameRegex.test(username)) {
-      return alert("Username must be alphanumeric");
+      alert("Username must be alphanumeric");
+      return false;
     }
 
     if (!password) {
-      return alert("Password is required");
+      alert("Password is required");
+      return false;
     }
 
     const passwordRegex = new RegExp(
@@ -90,14 +95,17 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     );
 
     if (!passwordRegex.test(password)) {
-      return alert(
+      alert(
         "Password must be 8-16 characters, at least one uppercase letter, one lowercase letter, one number and one special character"
       );
+      return false;
     }
 
     if (password !== confirmPassword) {
-      return alert("Password and confirm password must be the same");
+      alert("Password and confirm password must be the same");
+      return false;
     }
+    return true;
   };
 
   const dispatch = useAppDispatch();
@@ -105,15 +113,19 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
   const isLoading = status === State.LOADING;
 
   const onPressSignUp = async () => {
-    validateForm();
+    if (!validateForm()) return;
     dispatch(signUpThunk(form)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        alert("Sign up successfully. Sign in now");
-        navigation.replace(AppRoutes.SIGNIN);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: AppRoutes.SIGNIN }],
-        });
+        if (res.payload.success) {
+          alert("Sign up successfully. Sign in now");
+          navigation.replace(AppRoutes.SIGNIN);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: AppRoutes.SIGNIN }],
+          });
+        } else {
+          alert(res.payload.message);
+        }
       } else {
         alert("Sign up failed");
       }

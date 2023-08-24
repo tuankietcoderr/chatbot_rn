@@ -59,7 +59,6 @@ const ChatListItem = (room: IRoom) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
             Toast.show(res.payload.message, {
-              backgroundColor: AppColors.error,
               position: Toast.positions.CENTER,
             });
           } else {

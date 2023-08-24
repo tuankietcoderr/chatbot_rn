@@ -1,5 +1,3 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import {
   Manrope_200ExtraLight,
   Manrope_300Light,
@@ -10,25 +8,26 @@ import {
   Manrope_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/manrope";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import * as SplashScreen from "expo-splash-screen";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
-import OnboardingScreen from "@screens/onboarding/Onboarding";
-import AppRoutes from "@constants/route";
-import React from "react";
-import MainChat from "@screens/main/MainChat";
-import ChatList from "@screens/chats/ChatList";
 import { BotDataProvider } from "@/context/BotDataContext";
+import { DataProvider } from "@/context/DataContext";
 import Signin from "@/screens/auth/Signin";
 import Signup from "@/screens/auth/Signup";
-import { Provider } from "react-redux";
-import { store } from "@/store/store";
-import { DataProvider } from "@/context/DataContext";
 import Profile from "@/screens/profile/Profile";
-import { RootSiblingParent } from "react-native-root-siblings";
 import Save from "@/screens/profile/Save";
+import { store } from "@/store/store";
+import AppRoutes from "@constants/route";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ChatList from "@screens/chats/ChatList";
+import MainChat from "@screens/main/MainChat";
+import OnboardingScreen from "@screens/onboarding/Onboarding";
+import * as SplashScreen from "expo-splash-screen";
+import { RootSiblingParent } from "react-native-root-siblings";
+import { Provider } from "react-redux";
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();

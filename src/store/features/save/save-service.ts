@@ -23,7 +23,6 @@ const addSave = async (id: string) => {
 };
 
 const removeSave = async (id: string) => {
-  console.log({ id });
   try {
     const response = await deleteRequest(API.SAVE.REMOVE + "/" + id);
     return response;
