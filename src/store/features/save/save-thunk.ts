@@ -1,6 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addSave, getSaves, removeSave } from "./save-service";
-import { ISave } from "@/schema/client/save";
+import {
+  addSave,
+  getSaves,
+  removeSave,
+  removeSaveByMessageId,
+} from "./save-service";
 
 const getSavesThunk = createAsyncThunk("save/getSave", async () => {
   const response = await getSaves();
@@ -23,4 +27,17 @@ const removeSaveThunk = createAsyncThunk(
   }
 );
 
-export { getSavesThunk, addSaveThunk, removeSaveThunk };
+const removeSaveByMessageIdThunk = createAsyncThunk(
+  "save/removeSaveByMessageId",
+  async (messageId: string) => {
+    const response = await removeSaveByMessageId(messageId);
+    return response;
+  }
+);
+
+export {
+  getSavesThunk,
+  addSaveThunk,
+  removeSaveThunk,
+  removeSaveByMessageIdThunk,
+};

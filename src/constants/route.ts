@@ -7,6 +7,7 @@ const AppRoutes = {
   PROFILE: "Profile",
   SAVED: "Saved",
   USER_DATA: "UserData",
+  SETTING: "Setting",
 };
 
 export default AppRoutes;

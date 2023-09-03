@@ -31,4 +31,15 @@ const removeSave = async (id: string) => {
   }
 };
 
-export { getSaves, addSave, removeSave };
+const removeSaveByMessageId = async (messageId: string) => {
+  try {
+    const response = await deleteRequest(
+      API.SAVE.REMOVE_BY_MESSAGE_ID + "/" + messageId
+    );
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
+export { getSaves, addSave, removeSave, removeSaveByMessageId };

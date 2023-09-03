@@ -9,8 +9,6 @@ import { afterRemoveSave } from "@/store/features/chat/chat-slice";
 import { Ionicons } from "@expo/vector-icons";
 import AppColors from "@/constants/color";
 import AppFonts from "@/constants/font";
-import ReadMore from "@fawazahmed/react-native-read-more";
-import MyReadMoreText from "./MyReadMoreText";
 
 const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
   const dispatch = useAppDispatch();
@@ -38,20 +36,51 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
       <View
         style={{
           flex: 1,
+          gap: 10,
         }}
       >
-        <Text style={styles.title}>{moment(createdAt).format("llll")}</Text>
-        <MyReadMoreText style={styles.content}>{chat.content}</MyReadMoreText>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text style={styles.title}>{moment(createdAt).format("llll")}</Text>
+          <TouchableOpacity
+            onPress={onPressUnsave}
+            style={{
+              opacity: isLoadingSave ? 0.5 : 1,
+              flexDirection: "row",
+              alignItems: "center",
+              borderColor: AppColors.primary,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderRadius: 4,
+              padding: 4,
+              backgroundColor: AppColors.primary,
+              gap: 4,
+            }}
+            disabled={isLoadingSave}
+          >
+            <Ionicons
+              name="ios-bookmark"
+              size={18}
+              color={AppColors.onPrimary}
+            />
+            <Text
+              style={[
+                styles.content,
+                {
+                  color: AppColors.onPrimary,
+                },
+              ]}
+            >
+              {isLoadingSave ? "Unsaving..." : "Unsave"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.content}>{chat.content}</Text>
       </View>
-      <TouchableOpacity
-        onPress={onPressUnsave}
-        style={{
-          opacity: isLoadingSave ? 0.5 : 1,
-        }}
-        disabled={isLoadingSave}
-      >
-        <Ionicons name="ios-bookmark" size={24} color="black" />
-      </TouchableOpacity>
     </View>
   );
 };

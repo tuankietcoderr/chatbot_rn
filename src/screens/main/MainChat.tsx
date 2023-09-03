@@ -8,7 +8,7 @@ import AppFonts from "@constants/font";
 import AppFontSizes from "@constants/font-size";
 import AppRoutes from "@constants/route";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -38,18 +38,11 @@ import {
 } from "@/store/features/chat/chat-thunk";
 import { selectChat } from "@/store/features/chat/chat-selector";
 import { ModalProvider } from "@/context/ModalContext";
+import { randomUUID } from "@/lib/random";
+import { getAnswer } from "@/bot/bot-service";
 
-const example_response: IAnswer = {
-  id: "1",
-  answer:
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-  ref: {
-    link: "https://www.google.com",
-    title: "Google",
-  },
-  relatedQ: ["Test1", "Test2", "Test3", "Test4"],
-  relatedTthc: ["Test1", "Test2", "Test3", "Test4"],
-};
+const MAX_ITEM_PER_PAGE = 7;
+const SCROLL_UP_THRESHOLD = 500;
 
 const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   const dispatch = useAppDispatch();
@@ -57,22 +50,37 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   const isChatLoading = chatStatus === State.LOADING;
   const params = useRoute<any>();
   const roomId = params?.params?.roomId;
-  const [refreshing, setRefreshing] = useState(false);
-  const { chosenRelated, related, setRelated, setChosenRelated } =
-    useBotDataContext();
+  const numberOfPage = Math.ceil(chats.length / MAX_ITEM_PER_PAGE);
+  const [page, setPage] = useState(1);
+  const [firstScroll, setFirst] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const currrentY = useRef(null);
+  const [chatsState, setChatsState] = useState<IChatItem[]>([]);
+  const {
+    chosenRelated,
+    relatedQ,
+    setRelatedQ,
+    setChosenRelated,
+    relatedTthc,
+    setRelatedTthc,
+  } = useBotDataContext();
 
-  const onRefresh = async () => {
-    dispatch(getChatsOfRoomThunk(roomId))
-      .then((res) => {
-        if (res.meta.requestStatus === "fulfilled") {
-          if (res.payload.success) {
-            setRefreshing(false);
-          }
-        }
-      })
-      .finally(() => {
-        setRefreshing(false);
-      });
+  const onScroll = (event) => {
+    if (firstScroll === null) {
+      setFirst(event.nativeEvent.contentOffset.y);
+    }
+    currrentY.current = event.nativeEvent.contentOffset.y;
+  };
+  const onScrollENd = (event) => {
+    if (firstScroll && event.nativeEvent.contentOffset.y < firstScroll) {
+      if (page < numberOfPage) {
+        setIsUploading(true);
+        setTimeout(() => {
+          setPage((prev) => prev + 1);
+          setIsUploading(false);
+        }, SCROLL_UP_THRESHOLD);
+      }
+    }
   };
 
   useFocusEffect(
@@ -102,18 +110,39 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   }, []);
 
   useEffect(() => {
-    setRelated([]);
-    setChosenRelated(null);
+    setPage(1);
+    setRelatedQ([]);
+    setRelatedTthc([]);
+    setChosenRelated(["q", "tthc"]);
+  }, [roomId]);
+
+  useEffect(() => {
     (async function () {
       if (!roomId) return;
-      dispatch(getChatsOfRoomThunk(roomId)).then((res) => {
-        if (res.meta.requestStatus === "fulfilled") {
-          if (res.payload.success) {
-          }
-        }
-      });
+      dispatch(getChatsOfRoomThunk(roomId));
     })();
   }, [roomId]);
+
+  useEffect(() => {
+    if (chats && chats.length > 0) {
+      setChatsState(
+        chats.slice(Math.max(chats.length - MAX_ITEM_PER_PAGE, 0), chats.length)
+      );
+      setTimeout(() => {
+        flatListRef.current && flatListRef.current?.scrollToEnd();
+      }, 1000);
+    }
+  }, [chats]);
+
+  useEffect(() => {
+    setChatsState((prev) => [
+      ...chats.slice(
+        Math.max(chats.length - MAX_ITEM_PER_PAGE * page, 0),
+        Math.max(chats.length - MAX_ITEM_PER_PAGE * (page - 1), 0)
+      ),
+      ...prev,
+    ]);
+  }, [page]);
 
   const [message, setMessage] = React.useState<string>("");
   const [disableChat, setDisableChat] = React.useState<boolean>(false);
@@ -127,67 +156,61 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   const onPressSend = async (_message: string) => {
     if (_message.length === 0) return;
     setMessage("");
+    setChatsState((prev) => [
+      ...prev,
+      {
+        _id: randomUUID(),
+        content: _message,
+        isBotChat: false,
+        roomId,
+      },
+    ]);
 
     onSend(_message).then(async () => {
-      await onResponse();
+      await onResponse(_message);
     });
   };
 
   const onSend = async (message: string) => {
+    setDisableChat(true);
     dispatch(
       sendChatThunk({
         content: message,
         isBotChat: false,
         roomId,
       })
-    ).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        if (res.payload.success) {
-          setDisableChat(true);
-        }
-      }
+    );
+  };
+
+  const onResponse = async (_message: string) => {
+    // setDisableChat(true);
+    const answerRes = await getAnswer({
+      question: _message,
+      database: chosenRelated,
+    });
+    const { answer, ref, related_q, related_tthc } = answerRes;
+    answer && setChosenRelated(null);
+    setRelatedQ(related_q);
+    setRelatedTthc(related_tthc);
+    dispatch(
+      sendChatThunk({
+        content: answer || "Sorry, no answer found for your question",
+        isBotChat: true,
+        roomId,
+        reference: ref,
+      })
+    ).finally(() => {
+      flatListRef.current && flatListRef.current?.scrollToEnd();
+      setDisableChat(false);
     });
   };
 
-  const onResponse = async () => {
-    // setDisableChat(true);
-    dispatch(
-      sendChatThunk({
-        content: example_response.answer,
-        isBotChat: true,
-        roomId,
-        reference: {
-          link: example_response.ref.link,
-          title: example_response.ref.title,
-        },
-      })
-    )
-      .then((res) => {
-        if (res.meta.requestStatus === "fulfilled") {
-          if (res.payload.success) {
-            setChosenRelated("all");
-          }
-        }
-      })
-      .finally(() => {
-        setDisableChat(false);
-      });
-  };
-
-  useEffect(() => {
-    if (chats && chats.length > 0) {
-      flatListRef.current && flatListRef.current?.scrollToEnd();
-    }
-  }, []);
-
   const onPressQ = () => {
-    setChosenRelated("q");
-    setRelated(example_response.relatedQ);
+    setChosenRelated(["q"]);
   };
 
   const onPressAP = () => {
-    setChosenRelated("tthc");
-    setRelated(example_response.relatedTthc);
+    setChosenRelated(["tthc"]);
   };
 
   const onPressQoAP = (item: string) => {
@@ -199,19 +222,28 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   };
 
   const { width } = useWindowDimensions();
+  const renderRelated =
+    JSON.stringify(chosenRelated) === JSON.stringify(["q"])
+      ? relatedQ
+      : relatedTthc;
 
   return (
     <View style={styles.container}>
-      <MainLayout>
+      <View
+        style={{
+          flex: 1,
+        }}
+      >
         {!isChatLoading ? (
           <FlatList
-            refreshing={refreshing}
-            onRefresh={onRefresh}
+            ListHeaderComponent={() => isUploading && <ActivityIndicator />}
+            onScrollEndDrag={onScrollENd}
+            onScroll={onScroll}
             ref={flatListRef}
             onContentSizeChange={() => {
-              flatListRef.current && flatListRef.current?.scrollToEnd();
+              // flatListRef.current && flatListRef.current?.scrollToEnd();
             }}
-            data={chats}
+            data={chatsState}
             renderItem={({ item }) => (
               <ModalProvider>
                 <ChatItem chat={item} />
@@ -219,9 +251,9 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
             )}
             contentContainerStyle={{
               gap: 10,
-              marginTop: 10,
+              padding: 16,
             }}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item) => item._id + randomUUID()}
             showsVerticalScrollIndicator={false}
             ListFooterComponent={
               <View
@@ -253,9 +285,9 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                   </View>
                 )}
                 {!disableChat &&
-                  chats.length > 0 &&
-                  chats[chats.length - 1].isBotChat &&
-                  chosenRelated === "all" && (
+                  chatsState.length > 0 &&
+                  chatsState[chatsState.length - 1].isBotChat &&
+                  chosenRelated === null && (
                     <View
                       style={{
                         flexDirection: "row",
@@ -282,19 +314,18 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                     </View>
                   )}
                 {!disableChat &&
-                  chats.length > 0 &&
-                  chats[chats.length - 1].isBotChat &&
-                  chosenRelated !== "all" &&
+                  chatsState.length > 0 &&
+                  chatsState[chatsState.length - 1].isBotChat &&
                   chosenRelated !== null && (
                     <View
                       style={{
                         flexDirection: "row",
                         flexWrap: "wrap",
-                        maxWidth: width * 0.7,
+                        maxWidth: width * 0.8,
                         gap: 6,
                       }}
                     >
-                      {related.map((item, index) => (
+                      {renderRelated.map((item, index) => (
                         <TouchableOpacity
                           style={styles.relatedBtn}
                           onPress={() => onPressQoAP(item)}
@@ -303,15 +334,49 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                           <Text style={styles.text}>{item}</Text>
                         </TouchableOpacity>
                       ))}
+                      {!(
+                        chosenRelated.includes("q") &&
+                        chosenRelated.includes("tthc")
+                      ) && (
+                        <TouchableOpacity
+                          style={[
+                            styles.relatedBtn,
+                            {
+                              backgroundColor: AppColors.primary,
+                            },
+                          ]}
+                          onPress={
+                            JSON.stringify(chosenRelated) ===
+                            JSON.stringify(["q"])
+                              ? onPressAP
+                              : onPressQ
+                          }
+                        >
+                          <Text
+                            style={[
+                              styles.text,
+                              {
+                                color: AppColors.onPrimary,
+                              },
+                            ]}
+                          >
+                            Related{" "}
+                            {JSON.stringify(chosenRelated) ===
+                            JSON.stringify(["q"])
+                              ? "administrative procedures"
+                              : "questions"}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   )}
               </View>
             }
           />
         ) : (
-          <ActivityIndicator />
+          <ActivityIndicator size={"large"} />
         )}
-      </MainLayout>
+      </View>
       {/* {disableChat && (
         <TouchableOpacity style={styles.stopBtn} onPress={onPressStop}>
           <Ionicons name="stop-outline" size={24} color="black" />
@@ -330,9 +395,9 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
           editable={!disableChat}
           maxLength={150}
           onFocus={() => {
-            if (chats.length > 0) {
+            if (chatsState.length > 0) {
               flatListRef.current?.scrollToIndex({
-                index: chats.length - 1,
+                index: chatsState.length - 1,
               });
             }
           }}
@@ -369,7 +434,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: AppFonts.regular,
-    fontSize: AppFontSizes.small,
     color: AppColors.primary,
   },
   inputContainer: {
@@ -377,6 +441,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "flex-end",
     marginHorizontal: 16,
+    marginTop: 16,
     backgroundColor: AppColors.white,
     borderRadius: 8,
     paddingRight: 12,
@@ -392,16 +457,15 @@ const styles = StyleSheet.create({
   },
   relatedBtn: {
     backgroundColor: AppColors.onPrimary,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    padding: 10,
     borderRadius: 4,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppColors.primary,
+    elevation: 8,
   },
   relatedText: {
     color: AppColors.primary,
     fontFamily: AppFonts.regular,
-    fontSize: AppFontSizes.small,
   },
   scrollToBottom: {
     padding: 16,

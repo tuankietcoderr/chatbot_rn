@@ -28,6 +28,7 @@ import OnboardingScreen from "@screens/onboarding/Onboarding";
 import * as SplashScreen from "expo-splash-screen";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { Provider } from "react-redux";
+import Setting from "@/screens/profile/Setting";
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
@@ -75,6 +76,7 @@ export default function App() {
                   <Stack.Screen name={AppRoutes.CHATS} component={ChatList} />
                   <Stack.Screen name={AppRoutes.PROFILE} component={Profile} />
                   <Stack.Screen name={AppRoutes.SAVED} component={Save} />
+                  <Stack.Screen name={AppRoutes.SETTING} component={Setting} />
                 </Stack.Navigator>
               </NavigationContainer>
               <StatusBar style="auto" />

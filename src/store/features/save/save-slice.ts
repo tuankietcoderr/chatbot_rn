@@ -1,7 +1,12 @@
 import { State } from "@/constants/state";
 import { ISave } from "@/schema/client/save";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { addSaveThunk, getSavesThunk, removeSaveThunk } from "./save-thunk";
+import {
+  addSaveThunk,
+  getSavesThunk,
+  removeSaveByMessageIdThunk,
+  removeSaveThunk,
+} from "./save-thunk";
 
 interface ISaveState {
   status: State;
@@ -45,6 +50,15 @@ export const saveSlice = createSlice({
         });
       })
       .addCase(removeSaveThunk.rejected, (state) => {});
+
+    builder
+      .addCase(removeSaveByMessageIdThunk.pending, (state) => {})
+      .addCase(removeSaveByMessageIdThunk.fulfilled, (state, action) => {
+        state.saves = state.saves.filter((save) => {
+          return save._id !== action.payload.data._id;
+        });
+      })
+      .addCase(removeSaveByMessageIdThunk.rejected, (state) => {});
   },
 });
 

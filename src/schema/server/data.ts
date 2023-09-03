@@ -1,1 +1,1 @@
-export type IData = "q" | "tthc" | "all" | null;
+export type IData = "q" | "tthc" | null;

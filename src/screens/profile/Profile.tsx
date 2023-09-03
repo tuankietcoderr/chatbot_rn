@@ -110,6 +110,14 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
               <Ionicons name="ios-bookmarks-outline" size={24} color="black" />
             }
           />
+          <InProfileItem
+            title="Settings"
+            to={AppRoutes.SETTING}
+            subTitle="Customize your experience"
+            icon={
+              <Ionicons name="ios-settings-outline" size={24} color="black" />
+            }
+          />
         </View>
       </MainLayout>
       <Text style={styles.version}>

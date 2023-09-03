@@ -5,6 +5,6 @@ export interface IChatItem {
   content: string;
   roomId: string;
   isBotChat: boolean;
-  reference?: IReference;
+  reference?: IReference[];
   isSaved?: boolean;
 }

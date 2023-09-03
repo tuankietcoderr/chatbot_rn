@@ -11,7 +11,6 @@ import SavedItem from "@/components/SavedItem";
 import { randomUUID } from "@/lib/random";
 import Empty from "@/components/Empty";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
-import MainLayout from "@/layout/MainLayout";
 import { State } from "@/constants/state";
 import { ActivityIndicator } from "react-native";
 
@@ -48,25 +47,26 @@ const Save = ({ navigation }: NativeStackScreenProps<any>) => {
         flex: 1,
       }}
     >
-      <MainLayout>
-        {!isLoading ? (
-          <FlatList
-            data={saves}
-            renderItem={({ item }) => (
-              <ModalProvider>
-                <SavedItem {...item} />
-              </ModalProvider>
-            )}
-            ListEmptyComponent={<Empty content="Nothing here" />}
-            keyExtractor={(item) => item?._id || randomUUID()}
-            contentContainerStyle={{ marginTop: 16, rowGap: 8 }}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        ) : (
-          <ActivityIndicator size={"large"} />
-        )}
-      </MainLayout>
+      {!isLoading ? (
+        <FlatList
+          data={saves}
+          renderItem={({ item }) => (
+            <ModalProvider>
+              <SavedItem {...item} />
+            </ModalProvider>
+          )}
+          ListEmptyComponent={<Empty content="Nothing here" />}
+          keyExtractor={(item) => item?._id || randomUUID()}
+          contentContainerStyle={{
+            rowGap: 8,
+            padding: 16,
+          }}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
+      ) : (
+        <ActivityIndicator size={"large"} />
+      )}
     </View>
   );
 };

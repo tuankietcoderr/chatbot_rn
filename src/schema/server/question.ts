@@ -1,5 +1,7 @@
+import { IData } from "./data";
+
 export interface IQuestion {
-  id: string;
+  id?: string;
   question: string;
-  database: string[];
+  database: IData[] | null;
 }
