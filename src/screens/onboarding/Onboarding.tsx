@@ -88,9 +88,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
     {
       subtitle: (
         <Text style={styles.text}>
-          Get ready to experience a seamless and intelligent conversation with
-          our state-of-the-art Chatbot. We're here to assist and provide answers
-          to your queries.
+          Discover a smarter way to access government services.
         </Text>
       ),
       image: (
@@ -100,15 +98,13 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
           resizeMode="contain"
         />
       ),
-      title: <Text style={styles.title}>Experience</Text>,
+      title: <Text style={styles.title}>Embrace Efficiency</Text>,
       backgroundColor: "transparent",
     },
     {
       subtitle: (
         <Text style={styles.text}>
-          Say hello to our intelligent Chatbot designed to make your life
-          easier. We're here to help you with any questions or problems you
-          might have. Let's get started on this exciting journey!,
+          Our chatbot can help you with permits and public program. Just ask us!
         </Text>
       ),
       image: (
@@ -118,8 +114,25 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
           resizeMode="contain"
         />
       ),
-      title: <Text style={styles.title}>Intelligence</Text>,
+      title: <Text style={styles.title}>Seamless Service Access</Text>,
       backgroundColor: "transparent",
+    },
+    {
+      backgroundColor: "transparent",
+      image: (
+        <Image
+          source={require("@assets/images/onboarding_3.png")}
+          style={{ width: imageWidth, height: imageHeight }}
+          resizeMode="contain"
+        />
+      ),
+      title: <Text style={styles.title}>Your Personalized Guide</Text>,
+      subtitle: (
+        <Text style={styles.text}>
+          Chatbot gets you what you need, quickly and easily. Your hassle-free
+          experience starts now!
+        </Text>
+      ),
     },
   ];
 
@@ -129,6 +142,10 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
     await AsyncStorage.setItem(AppCommon.IS_FIRST_TIME, "true").then(() => {
       navigation.navigate(AppRoutes.SIGNIN);
     });
+  };
+
+  const onPressSkip = async () => {
+    await onPressStart();
   };
 
   return (
@@ -164,7 +181,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
         bottomBarHighlight={false}
         pages={onboardingData}
       />
-      {showStartButton && (
+      {showStartButton ? (
         <TouchableOpacity style={styles.btn} onPress={onPressStart}>
           <Text
             style={{
@@ -174,7 +191,22 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
               textAlign: "center",
             }}
           >
-            Start
+            Let's get started
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={styles.skipBtn} onPress={onPressSkip}>
+          <Text
+            style={{
+              color: AppColors.black,
+              fontFamily: AppFonts.bold,
+              fontSize: AppFontSizes.body,
+              textAlign: "center",
+              textDecorationColor: AppColors.black,
+              textDecorationLine: "underline",
+            }}
+          >
+            Skip
           </Text>
         </TouchableOpacity>
       )}
@@ -207,5 +239,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: AppFontSizes.body,
     fontFamily: AppFonts.regular,
+  },
+  skipBtn: {
+    padding: 16,
   },
 });

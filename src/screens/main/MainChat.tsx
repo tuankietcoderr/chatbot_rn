@@ -40,6 +40,7 @@ import { selectChat } from "@/store/features/chat/chat-selector";
 import { ModalProvider } from "@/context/ModalContext";
 import { randomUUID } from "@/lib/random";
 import { getAnswer } from "@/bot/bot-service";
+import { AxiosError } from "axios";
 
 const MAX_ITEM_PER_PAGE = 7;
 const SCROLL_UP_THRESHOLD = 500;
@@ -113,6 +114,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     setPage(1);
     setRelatedQ([]);
     setRelatedTthc([]);
+    setDisableChat(false);
     setChosenRelated(["q", "tthc"]);
   }, [roomId]);
 
@@ -160,8 +162,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       ...prev,
       {
         _id: randomUUID(),
-        content: _message,
-        isBotChat: false,
+        question: _message,
         roomId,
       },
     ]);
@@ -173,29 +174,34 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
 
   const onSend = async (message: string) => {
     setDisableChat(true);
-    dispatch(
-      sendChatThunk({
-        content: message,
-        isBotChat: false,
-        roomId,
-      })
-    );
   };
 
   const onResponse = async (_message: string) => {
     // setDisableChat(true);
+
     const answerRes = await getAnswer({
       question: _message,
       database: chosenRelated,
     });
-    const { answer, ref, related_q, related_tthc } = answerRes;
+    if (answerRes instanceof AxiosError) {
+      alert(answerRes.message);
+      setDisableChat(false);
+      setChatsState((prev) => {
+        const newPrev = [...prev];
+        newPrev.pop();
+        return newPrev;
+      });
+      return;
+    }
+    const { answer, ref, related_q, related_tthc, question } =
+      answerRes as IAnswer;
     answer && setChosenRelated(null);
     setRelatedQ(related_q);
     setRelatedTthc(related_tthc);
     dispatch(
       sendChatThunk({
-        content: answer || "Sorry, no answer found for your question",
-        isBotChat: true,
+        question,
+        answer: answer || "Sorry, no answer found for your question",
         roomId,
         reference: ref,
       })
@@ -286,7 +292,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                 )}
                 {!disableChat &&
                   chatsState.length > 0 &&
-                  chatsState[chatsState.length - 1].isBotChat &&
+                  chatsState[chatsState.length - 1].answer &&
                   chosenRelated === null && (
                     <View
                       style={{
@@ -315,7 +321,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                   )}
                 {!disableChat &&
                   chatsState.length > 0 &&
-                  chatsState[chatsState.length - 1].isBotChat &&
+                  chatsState[chatsState.length - 1].answer &&
                   chosenRelated !== null && (
                     <View
                       style={{
@@ -446,6 +452,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingRight: 12,
     gap: 10,
+    elevation: 8,
   },
   input: {
     flex: 1,

@@ -26,7 +26,7 @@ type Props = {
 };
 
 const ChatItem = ({ chat }: Props) => {
-  const { content, isBotChat, reference, isSaved, _id } = chat;
+  const { question, answer, reference, isSaved, _id } = chat;
   const [showReference, setShowReference] = useState(true);
   const [isSavedState, setIsSavedState] = useState(isSaved);
   const onPressChatItem = () => {
@@ -75,7 +75,7 @@ const ChatItem = ({ chat }: Props) => {
 
   const onCopyToClipboard = async () => {
     setIsCopying(true);
-    await Clipboard.setStringAsync(content)
+    await Clipboard.setStringAsync(answer || "")
       .then(() => {
         setIsCopying(false);
         Toast.show("Copied to clipboard", {
@@ -91,8 +91,8 @@ const ChatItem = ({ chat }: Props) => {
   };
 
   const isAnswered =
-    content !== "Sorry, no answer found for your question" &&
-    content !== "Hi, you can ask me anything.";
+    answer !== "Sorry, no answer found for your question" &&
+    answer !== "Hi, you can ask me anything.";
 
   return (
     <View
@@ -104,14 +104,14 @@ const ChatItem = ({ chat }: Props) => {
         style={[
           styles.container,
           {
-            backgroundColor: isBotChat ? AppColors.white : AppColors.primary,
-            alignSelf: isBotChat ? "flex-start" : "flex-end",
+            backgroundColor: answer ? AppColors.white : AppColors.primary,
+            alignSelf: answer ? "flex-start" : "flex-end",
           },
         ]}
       >
         <TouchableOpacity
           onPress={onPressChatItem}
-          disabled={!isBotChat}
+          disabled={!answer}
           style={{
             maxWidth: AppCommon.SCREEN_WIDTH,
           }}
@@ -120,14 +120,14 @@ const ChatItem = ({ chat }: Props) => {
             style={[
               styles.text,
               {
-                color: isBotChat ? AppColors.black : AppColors.onPrimary,
+                color: answer ? AppColors.black : AppColors.onPrimary,
               },
             ]}
           >
-            {content}
+            {answer || question}
           </Text>
 
-          {isAnswered && isBotChat && (
+          {isAnswered && answer && (
             <View style={styles.actionContainer}>
               <TouchableOpacity
                 style={[
@@ -184,7 +184,7 @@ const ChatItem = ({ chat }: Props) => {
           )}
         </TouchableOpacity>
       </View>
-      {showReference && content !== CHATBOT_INITIAL_STATE && isBotChat && (
+      {showReference && answer && answer !== CHATBOT_INITIAL_STATE && (
         <Text style={styles.referenceContainer}>
           Reference:{" "}
           {reference && reference.length > 0
