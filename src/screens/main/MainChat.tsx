@@ -1,46 +1,41 @@
+import { getAnswer } from "@/bot/bot-service";
 import ChatItem from "@/components/ChatItem";
+import GeneratingAnswer from "@/components/GeneratingAnswer";
+import InitialChatbot from "@/components/InitialChatbot";
+import { MainHeaderRight, MainHeaderTitle } from "@/components/MainHeader";
+import Related from "@/components/Related";
+import { AppCommon } from "@/constants/common";
+import { State } from "@/constants/state";
 import { useBotDataContext } from "@/context/BotDataContext";
-import MainLayout from "@/layout/MainLayout";
+import { ModalProvider } from "@/context/ModalContext";
+import { randomUUID } from "@/lib/random";
 import { IChatItem } from "@/schema/client/chat-item";
 import { IAnswer } from "@/schema/server/answer";
+import { selectChat } from "@/store/features/chat/chat-selector";
+import {
+  getChatsOfRoomThunk,
+  sendChatThunk,
+} from "@/store/features/chat/chat-thunk";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
 import AppColors from "@constants/color";
 import AppFonts from "@constants/font";
 import AppFontSizes from "@constants/font-size";
 import AppRoutes from "@constants/route";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useRoute } from "@react-navigation/core";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AxiosError } from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
-  Linking,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from "react-native";
-import { TypingAnimation } from "react-native-typing-animation";
-import { useFocusEffect, useRoute } from "@react-navigation/core";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AppCommon } from "@/constants/common";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { selectUser } from "@/store/features/auth/auth-selector";
-import { Ionicons } from "@expo/vector-icons";
-import { MainHeaderRight, MainHeaderTitle } from "@/components/MainHeader";
-import { selectRoom } from "@/store/features/room/room-selector";
-import { State } from "@/constants/state";
-import { createRoomThunk } from "@/store/features/room/room-thunk";
-import {
-  getChatsOfRoomThunk,
-  sendChatThunk,
-} from "@/store/features/chat/chat-thunk";
-import { selectChat } from "@/store/features/chat/chat-selector";
-import { ModalProvider } from "@/context/ModalContext";
-import { randomUUID } from "@/lib/random";
-import { getAnswer } from "@/bot/bot-service";
-import { AxiosError } from "axios";
 
 const MAX_ITEM_PER_PAGE = 7;
 const SCROLL_UP_THRESHOLD = 500;
@@ -116,6 +111,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     setRelatedTthc([]);
     setDisableChat(false);
     setChosenRelated(["q", "tthc"]);
+    setChatsState([]);
   }, [roomId]);
 
   useEffect(() => {
@@ -130,9 +126,6 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       setChatsState(
         chats.slice(Math.max(chats.length - MAX_ITEM_PER_PAGE, 0), chats.length)
       );
-      setTimeout(() => {
-        flatListRef.current && flatListRef.current?.scrollToEnd();
-      }, 1000);
     }
   }, [chats]);
 
@@ -182,6 +175,8 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     const answerRes = await getAnswer({
       question: _message,
       database: chosenRelated,
+      dead: false,
+      roomId,
     });
     if (answerRes instanceof AxiosError) {
       alert(answerRes.message);
@@ -201,12 +196,11 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     dispatch(
       sendChatThunk({
         question,
-        answer: answer || "Sorry, no answer found for your question",
+        answer: answer || "Xin lỗi, tôi không hiểu câu hỏi của bạn",
         roomId,
         reference: ref,
       })
     ).finally(() => {
-      flatListRef.current && flatListRef.current?.scrollToEnd();
       setDisableChat(false);
     });
   };
@@ -227,7 +221,6 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     setDisableChat(false);
   };
 
-  const { width } = useWindowDimensions();
   const renderRelated =
     JSON.stringify(chosenRelated) === JSON.stringify(["q"])
       ? relatedQ
@@ -242,14 +235,16 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       >
         {!isChatLoading ? (
           <FlatList
+            initialNumToRender={MAX_ITEM_PER_PAGE}
             ListHeaderComponent={() => isUploading && <ActivityIndicator />}
             onScrollEndDrag={onScrollENd}
             onScroll={onScroll}
             ref={flatListRef}
             onContentSizeChange={() => {
-              // flatListRef.current && flatListRef.current?.scrollToEnd();
+              flatListRef.current && flatListRef.current?.scrollToEnd();
             }}
-            data={chatsState}
+            ListEmptyComponent={() => <InitialChatbot />}
+            data={chatsState.length > 0 ? [...chatsState, {} as IChatItem] : []}
             renderItem={({ item }) => (
               <ModalProvider>
                 <ChatItem chat={item} />
@@ -267,29 +262,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                   marginBottom: disableChat ? 120 : 80,
                 }}
               >
-                {disableChat && (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 40,
-                    }}
-                  >
-                    <TypingAnimation
-                      dotColor={AppColors.gray}
-                      dotMargin={6}
-                      dotX={14}
-                      dotSpeed={0.25}
-                    />
-                    <Text
-                      style={{
-                        ...styles.text,
-                        color: AppColors.gray,
-                      }}
-                    >
-                      Generating answer
-                    </Text>
-                  </View>
-                )}
+                <GeneratingAnswer visible={disableChat} />
                 {!disableChat &&
                   chatsState.length > 0 &&
                   chatsState[chatsState.length - 1].answer &&
@@ -306,7 +279,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                         onPress={onPressQ}
                       >
                         <Text style={styles.relatedText}>
-                          Related questions
+                          Câu hỏi liên quan
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -314,68 +287,23 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                         onPress={onPressAP}
                       >
                         <Text style={styles.relatedText}>
-                          Related administrative procedures
+                          Thủ tục hành chính liên quan
                         </Text>
                       </TouchableOpacity>
                     </View>
                   )}
-                {!disableChat &&
-                  chatsState.length > 0 &&
-                  chatsState[chatsState.length - 1].answer &&
-                  chosenRelated !== null && (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        maxWidth: width * 0.8,
-                        gap: 6,
-                      }}
-                    >
-                      {renderRelated.map((item, index) => (
-                        <TouchableOpacity
-                          style={styles.relatedBtn}
-                          onPress={() => onPressQoAP(item)}
-                          key={item + index.toString()}
-                        >
-                          <Text style={styles.text}>{item}</Text>
-                        </TouchableOpacity>
-                      ))}
-                      {!(
-                        chosenRelated.includes("q") &&
-                        chosenRelated.includes("tthc")
-                      ) && (
-                        <TouchableOpacity
-                          style={[
-                            styles.relatedBtn,
-                            {
-                              backgroundColor: AppColors.primary,
-                            },
-                          ]}
-                          onPress={
-                            JSON.stringify(chosenRelated) ===
-                            JSON.stringify(["q"])
-                              ? onPressAP
-                              : onPressQ
-                          }
-                        >
-                          <Text
-                            style={[
-                              styles.text,
-                              {
-                                color: AppColors.onPrimary,
-                              },
-                            ]}
-                          >
-                            Related{" "}
-                            {JSON.stringify(chosenRelated) ===
-                            JSON.stringify(["q"])
-                              ? "administrative procedures"
-                              : "questions"}
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  )}
+                <Related
+                  data={renderRelated}
+                  callback={onPressSend}
+                  visible={
+                    !!(
+                      !disableChat &&
+                      chatsState.length > 0 &&
+                      chatsState[chatsState.length - 1].answer &&
+                      chosenRelated !== null
+                    )
+                  }
+                />
               </View>
             }
           />
@@ -392,9 +320,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder={
-            disableChat ? "Waiting for answer..." : "Enter your message"
-          }
+          placeholder={disableChat ? "Đang trả lời..." : "Nhập câu hỏi của bạn"}
           onChangeText={onInputChange}
           value={message}
           multiline
@@ -452,7 +378,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingRight: 12,
     gap: 10,
-    elevation: 8,
+    // elevation: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: AppColors.gray,
   },
   input: {
     flex: 1,
@@ -468,7 +396,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppColors.primary,
-    elevation: 8,
   },
   relatedText: {
     color: AppColors.primary,

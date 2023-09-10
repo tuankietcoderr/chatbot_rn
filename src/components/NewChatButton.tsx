@@ -46,12 +46,12 @@ const NewChatButton = () => {
       {!isLoading ? (
         <>
           <AntDesign name="plus" size={24} color={AppColors.onPrimary} />
-          <Text style={styles.btnText}>New chat</Text>
+          <Text style={styles.btnText}>Cuộc trò chuyện mới</Text>
         </>
       ) : (
         <>
           <ActivityIndicator size="small" color={AppColors.onPrimary} />
-          <Text style={styles.btnText}>Creating...</Text>
+          <Text style={styles.btnText}>Đang tạo...</Text>
         </>
       )}
     </TouchableOpacity>

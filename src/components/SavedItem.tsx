@@ -79,7 +79,7 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
             </Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.content}>{chat.content}</Text>
+        <Text style={styles.content}>{chat.answer}</Text>
       </View>
     </View>
   );

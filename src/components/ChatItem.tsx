@@ -1,25 +1,27 @@
 import AppColors from "@/constants/color";
 import { AppCommon } from "@/constants/common";
 import AppFonts from "@/constants/font";
-import { CHATBOT_INITIAL_STATE } from "@/constants/state";
 import { randomUUID } from "@/lib/random";
-import { Ionicons } from "@expo/vector-icons";
+import { EvilIcons, Ionicons } from "@expo/vector-icons";
 import { IChatItem } from "@schema/client/chat-item";
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import {
   Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { useAppDispatch } from "@/store/hook";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   addSaveThunk,
   removeSaveByMessageIdThunk,
 } from "@/store/features/save/save-thunk";
 import Toast from "react-native-root-toast";
+import { selectUser } from "@/store/features/auth/auth-selector";
+import ChatbotIcon from "./ChatbotIcon";
 
 type Props = {
   chat: IChatItem;
@@ -29,9 +31,6 @@ const ChatItem = ({ chat }: Props) => {
   const { question, answer, reference, isSaved, _id } = chat;
   const [showReference, setShowReference] = useState(true);
   const [isSavedState, setIsSavedState] = useState(isSaved);
-  const onPressChatItem = () => {
-    setShowReference((prev) => !prev);
-  };
 
   const dispatch = useAppDispatch();
   const [isLoadingSave, setIsLoadingSave] = useState(false);
@@ -44,7 +43,7 @@ const ChatItem = ({ chat }: Props) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
             setIsSavedState(true);
-            Toast.show("Saved successfully");
+            Toast.show("Lưu thành công");
           } else {
             alert(res.payload.message);
           }
@@ -61,7 +60,7 @@ const ChatItem = ({ chat }: Props) => {
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
-            Toast.show("Unsaved successfully");
+            Toast.show("Bỏ lưu thành công");
             setIsSavedState(false);
           } else {
             alert(res.payload.message);
@@ -78,7 +77,7 @@ const ChatItem = ({ chat }: Props) => {
     await Clipboard.setStringAsync(answer || "")
       .then(() => {
         setIsCopying(false);
-        Toast.show("Copied to clipboard", {
+        Toast.show("Đã sao chép vào khay nhớ tạm", {
           position: Toast.positions.CENTER,
         });
         setTimeout(() => {
@@ -90,44 +89,96 @@ const ChatItem = ({ chat }: Props) => {
       });
   };
 
-  const isAnswered =
-    answer !== "Sorry, no answer found for your question" &&
-    answer !== "Hi, you can ask me anything.";
+  const CANT_UNDERSTAND = "Xin lỗi, tôi không hiểu câu hỏi của bạn";
 
   return (
     <View
       style={{
-        width: "100%",
+        gap: 10,
       }}
     >
-      <View
-        style={[
-          styles.container,
-          {
-            backgroundColor: answer ? AppColors.white : AppColors.primary,
-            alignSelf: answer ? "flex-start" : "flex-end",
-          },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={onPressChatItem}
-          disabled={!answer}
+      {question ? (
+        <View
           style={{
-            maxWidth: AppCommon.SCREEN_WIDTH,
+            width: "100%",
           }}
         >
-          <Text
+          <View
             style={[
-              styles.text,
+              styles.container,
               {
-                color: answer ? AppColors.black : AppColors.onPrimary,
+                // backgroundColor: AppColors.primary,
+                alignSelf: "flex-start",
               },
             ]}
           >
-            {answer || question}
-          </Text>
-
-          {isAnswered && answer && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Ionicons
+                name="person-circle-outline"
+                size={24}
+                color="gray"
+                style={{
+                  alignSelf: "flex-start",
+                }}
+              />
+              <Text
+                style={[
+                  styles.text,
+                  {
+                    // color: AppColors.onPrimary,
+                    maxWidth: AppCommon.SCREEN_WIDTH - 100,
+                  },
+                ]}
+              >
+                {question}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : null}
+      <View
+        style={{
+          opacity: answer ? 1 : 0,
+          height: answer ? "auto" : 0,
+        }}
+      >
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: AppColors.white,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: "#ADC4CE",
+            },
+          ]}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 10,
+              alignItems: "center",
+            }}
+          >
+            <ChatbotIcon />
+            <Text
+              style={[
+                styles.text,
+                {
+                  color: AppColors.black,
+                  maxWidth: AppCommon.SCREEN_WIDTH - 100,
+                },
+              ]}
+            >
+              {answer}
+            </Text>
+          </View>
+          {answer && answer !== CANT_UNDERSTAND && (
             <View style={styles.actionContainer}>
               <TouchableOpacity
                 style={[
@@ -160,11 +211,11 @@ const ChatItem = ({ chat }: Props) => {
                 >
                   {isLoadingSave
                     ? isSavedState
-                      ? "Unsaving..."
-                      : "Saving..."
+                      ? "Đang bỏ lưu..."
+                      : "Đang lưu..."
                     : isSavedState
-                    ? "Unsave"
-                    : "Save"}
+                    ? "Bỏ lưu"
+                    : "Lưu"}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -174,48 +225,58 @@ const ChatItem = ({ chat }: Props) => {
                 <Ionicons name="ios-copy-outline" size={16} color="black" />
                 <Text style={styles.text}>
                   {isCopying === null
-                    ? "Copy"
+                    ? "Sao chép"
                     : isCopying === true
-                    ? "Copying..."
-                    : "Copied"}
+                    ? "Đang sao chép..."
+                    : "Đã sao chép"}
                 </Text>
               </TouchableOpacity>
             </View>
           )}
-        </TouchableOpacity>
+        </View>
+
+        {reference && reference?.length > 0 && showReference && answer && (
+          <View style={styles.referenceContainer}>
+            <EvilIcons
+              name="link"
+              size={30}
+              color="gray"
+              style={{
+                alignSelf: "flex-start",
+              }}
+            />
+            <Text style={styles.referenceTextContainer}>
+              {reference && reference.length > 0
+                ? reference.map((ref) => (
+                    <Text
+                      key={ref.link + ref.title + randomUUID()}
+                      onPress={() => {
+                        Linking.openURL(ref.link).catch((err) =>
+                          console.error("Couldn't load page", err)
+                        );
+                      }}
+                      style={styles.referenceLink}
+                    >
+                      {ref.title}
+                    </Text>
+                  ))
+                : "Không thể tìm thấy liên kết"}
+            </Text>
+          </View>
+        )}
       </View>
-      {showReference && answer && answer !== CHATBOT_INITIAL_STATE && (
-        <Text style={styles.referenceContainer}>
-          Reference:{" "}
-          {reference && reference.length > 0
-            ? reference.map((ref) => (
-                <Text
-                  key={ref.link + ref.title + randomUUID()}
-                  onPress={() => {
-                    Linking.openURL(ref.link).catch((err) =>
-                      console.error("Couldn't load page", err)
-                    );
-                  }}
-                  style={styles.referenceLink}
-                >
-                  {ref.title}
-                </Text>
-              ))
-            : "No reference"}
-        </Text>
-      )}
     </View>
   );
 };
 
-export default ChatItem;
+export default memo(ChatItem);
 
 const styles = StyleSheet.create({
   container: {
     padding: 10,
     borderRadius: 8,
-    flexDirection: "row",
-    elevation: 8,
+    // flexDirection: "row",
+    // elevation: 8,
   },
   text: {
     fontFamily: AppFonts.regular,
@@ -226,15 +287,21 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   referenceContainer: {
-    fontFamily: AppFonts.regular,
     padding: 10,
     backgroundColor: AppColors.onPrimary,
     alignSelf: "flex-start",
     borderRadius: 8,
-    maxWidth: AppCommon.SCREEN_WIDTH,
-    width: "auto",
+    width: "100%",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#ADC4CE",
     marginTop: 10,
-    elevation: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  referenceTextContainer: {
+    fontFamily: AppFonts.regular,
+    maxWidth: AppCommon.SCREEN_WIDTH - 100,
   },
   actionContainer: {
     flexDirection: "row",

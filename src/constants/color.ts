@@ -6,6 +6,10 @@ const AppColors = {
   gray: "#A0A0A0",
   black: "#000000",
   white: "#FFFFFF",
+  darkMode: {
+    primary: "",
+    background: "#",
+  },
 };
 
 export default AppColors;

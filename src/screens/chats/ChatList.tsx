@@ -1,34 +1,30 @@
+import ChatListItem from "@/components/ChatListItem";
+import Empty from "@/components/Empty";
+import { MainHeaderRight } from "@/components/MainHeader";
+import NewChatButton from "@/components/NewChatButton";
+import AppFonts from "@/constants/font";
+import { State } from "@/constants/state";
+import { ModalProvider } from "@/context/ModalContext";
+import MainLayout from "@/layout/MainLayout";
+import { randomUUID } from "@/lib/random";
+import { selectRoom } from "@/store/features/room/room-selector";
+import { getRoomsThunk } from "@/store/features/room/room-thunk";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { EvilIcons } from "@expo/vector-icons";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  RefreshControl,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import AppFonts from "@/constants/font";
-import { AntDesign, EvilIcons } from "@expo/vector-icons";
-import MainLayout from "@/layout/MainLayout";
-import AppColors from "@/constants/color";
-import NewChatButton from "@/components/NewChatButton";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { selectRoom } from "@/store/features/room/room-selector";
-import ChatListItem from "@/components/ChatListItem";
-import { ModalProvider } from "@/context/ModalContext";
-import { randomUUID } from "@/lib/random";
-import { getRoomsThunk } from "@/store/features/room/room-thunk";
-import { State } from "@/constants/state";
-import Empty from "@/components/Empty";
-import { IRoom } from "@/schema/client/room";
-import { MainHeaderRight } from "@/components/MainHeader";
 
 const ChatList = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Chats",
+      headerTitle: "Cuộc trò chuyện",
       headerTitleStyle: {
         fontFamily: AppFonts.semiBold,
       },
@@ -71,7 +67,7 @@ const ChatList = ({ navigation }: NativeStackScreenProps<any>) => {
                 <ChatListItem {...item} />
               </ModalProvider>
             )}
-            ListEmptyComponent={<Empty content="Nothing here" />}
+            ListEmptyComponent={<Empty content="Trống" />}
             keyExtractor={(item) => item?._id || randomUUID()}
             contentContainerStyle={{ marginTop: 16, rowGap: 8 }}
             refreshing={refreshing}

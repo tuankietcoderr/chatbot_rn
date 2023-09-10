@@ -1,31 +1,23 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
-import { IRoom } from "@/schema/client/room";
 import AppColors from "@/constants/color";
 import AppFonts from "@/constants/font";
 import AppFontSizes from "@/constants/font-size";
-import { Ionicons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/core";
 import AppRoutes from "@/constants/route";
-import MyModal from "./MyModal";
-import MyTextInput from "./MyTextInput";
 import { useModalContext } from "@/context/ModalContext";
-import UpdateRoomModal from "./UpdateRoomModal";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import {
-  createRoomThunk,
-  deleteRoomThunk,
-} from "@/store/features/room/room-thunk";
-import { selectRoom } from "@/store/features/room/room-selector";
+import { IRoom } from "@/schema/client/room";
+import { deleteRoomThunk } from "@/store/features/room/room-thunk";
+import { useAppDispatch } from "@/store/hook";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/core";
+import React, { useState } from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-root-toast";
+import UpdateRoomModal from "./UpdateRoomModal";
 
 const ChatListItem = (room: IRoom) => {
   const { _id, title, shortDescription } = room;
   const navigation = useNavigation<any>();
   const { onModalOpen } = useModalContext();
   const dispatch = useAppDispatch();
-
   const onPressItem = () => {
     navigation.navigate(AppRoutes.MAIN, { roomId: _id });
   };

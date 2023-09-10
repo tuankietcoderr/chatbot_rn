@@ -10,7 +10,12 @@ import {
   signOutThunk,
 } from "@/store/features/auth/auth-thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { EvilIcons, Ionicons } from "@expo/vector-icons";
+import {
+  EvilIcons,
+  FontAwesome,
+  FontAwesome5,
+  Ionicons,
+} from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
 import {
@@ -26,7 +31,7 @@ import appData from "../../../app.json";
 const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Profile",
+      headerTitle: "Hồ sơ",
       headerTitleAlign: "center",
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -58,13 +63,13 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
   }, []);
 
   async function onPressLogout() {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
+    Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất chứ?", [
       {
-        text: "Cancel",
+        text: "Hủy",
         style: "cancel",
       },
       {
-        text: "Logout",
+        text: "Đăng xuất",
         onPress: () => {
           dispatch(signOutThunk()).then((res) => {
             if (res.meta.requestStatus === "fulfilled") {
@@ -74,7 +79,7 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
                 routes: [{ name: AppRoutes.SIGNIN }],
               });
             } else {
-              alert("Logout failed");
+              alert("Không thể đăng xuất");
             }
           });
         },
@@ -95,32 +100,34 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
         />
         <Text style={styles.fullName}>{user?.fullName}</Text>
         <Text style={styles.username}>@{user?.username}</Text>
+        <TouchableOpacity style={styles.editProfileBtn}>
+          <Text style={styles.editProfileBtnText}>Sửa hồ sơ</Text>
+          <FontAwesome
+            name="angle-right"
+            size={24}
+            color={AppColors.onPrimary}
+          />
+        </TouchableOpacity>
       </View>
-      <MainLayout>
-        <View
-          style={{
-            gap: 8,
-          }}
-        >
-          <InProfileItem
-            title="Saved answers"
-            to={AppRoutes.SAVED}
-            subTitle="All you saved answers"
-            icon={
-              <Ionicons name="ios-bookmarks-outline" size={24} color="black" />
-            }
-          />
-          <InProfileItem
-            title="Settings"
-            to={AppRoutes.SETTING}
-            subTitle="Customize your experience"
-            icon={
-              <Ionicons name="ios-settings-outline" size={24} color="black" />
-            }
-          />
-        </View>
-      </MainLayout>
-      <Text style={styles.version}>
+      <View>
+        <Text style={styles.title}>Nội dung</Text>
+        <InProfileItem
+          title="Câu trả lời đã lưu"
+          to={AppRoutes.SAVED}
+          icon={
+            <Ionicons name="ios-bookmarks-outline" size={24} color="black" />
+          }
+        />
+      </View>
+      <View>
+        <Text style={styles.title}>Tùy chỉnh</Text>
+        <InProfileItem
+          title="Chế độ tối"
+          icon={<Ionicons name="moon-outline" size={24} color="black" />}
+          type="switch"
+        />
+      </View>
+      {/* <Text style={styles.version}>
         Version{" "}
         <Text
           style={{
@@ -129,7 +136,7 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
         >
           {appData.expo.version}
         </Text>
-      </Text>
+      </Text> */}
     </View>
   );
 };
@@ -139,10 +146,19 @@ export default Profile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 16,
+  },
+  title: {
+    fontFamily: AppFonts.semiBold,
+    color: AppColors.gray,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    fontSize: AppFontSizes.small,
   },
   info: {
     alignItems: "center",
+    backgroundColor: AppColors.white,
+    paddingVertical: 16,
+    gap: 8,
   },
   fullName: {
     fontSize: AppFontSizes.medium,
@@ -158,5 +174,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: AppColors.gray,
     marginBottom: 10,
+  },
+  editProfileBtnText: {
+    fontFamily: AppFonts.semiBold,
+    color: AppColors.onPrimary,
+  },
+  editProfileBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: AppColors.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 100,
   },
 });

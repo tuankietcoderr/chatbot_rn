@@ -22,6 +22,6 @@ export const API = {
 };
 
 export const BOT = {
-  BASE: "https://49da-116-110-40-86.ngrok-free.app/api",
+  BASE: "https://mutually-knowing-bull.ngrok-free.app/api",
   GET_ANSWER: "/get_answer",
 };

@@ -9,7 +9,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/manrope";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
+import { StyleSheet, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { BotDataProvider } from "@/context/BotDataContext";
@@ -28,7 +28,9 @@ import OnboardingScreen from "@screens/onboarding/Onboarding";
 import * as SplashScreen from "expo-splash-screen";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { Provider } from "react-redux";
-import Setting from "@/screens/profile/Setting";
+import Font from "@/screens/profile/settings/Font";
+import Language from "@/screens/profile/settings/Language";
+import Theme from "@/constants/theme";
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
@@ -43,7 +45,8 @@ export default function App() {
     Manrope_700Bold,
     Manrope_800ExtraBold,
   });
-
+  const theme = useColorScheme();
+  console.log({ theme });
   if (!fontsLoaded) {
     return null;
   } else {
@@ -51,14 +54,15 @@ export default function App() {
   }
 
   const initialRouteName = AppRoutes.ONBOARDING;
-
   return (
     <RootSiblingParent>
       <Provider store={store}>
         <DataProvider>
           <BotDataProvider>
             <SafeAreaProvider>
-              <NavigationContainer>
+              <NavigationContainer
+              // theme={theme === "dark" ? Theme.dark : Theme.light}
+              >
                 <Stack.Navigator
                   initialRouteName={initialRouteName}
                   screenOptions={{
@@ -76,7 +80,11 @@ export default function App() {
                   <Stack.Screen name={AppRoutes.CHATS} component={ChatList} />
                   <Stack.Screen name={AppRoutes.PROFILE} component={Profile} />
                   <Stack.Screen name={AppRoutes.SAVED} component={Save} />
-                  <Stack.Screen name={AppRoutes.SETTING} component={Setting} />
+                  <Stack.Screen name={AppRoutes.FONT} component={Font} />
+                  <Stack.Screen
+                    name={AppRoutes.LANGUAGE}
+                    component={Language}
+                  />
                 </Stack.Navigator>
               </NavigationContainer>
               <StatusBar style="auto" />
