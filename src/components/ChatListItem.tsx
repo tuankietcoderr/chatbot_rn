@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-root-toast";
 import UpdateRoomModal from "./UpdateRoomModal";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const ChatListItem = (room: IRoom) => {
   const { _id, title, shortDescription } = room;
@@ -27,19 +28,23 @@ const ChatListItem = (room: IRoom) => {
   };
 
   const onPressDelete = () => {
-    Alert.alert("Are you sure?", "Delete room will delete all messages", [
-      {
-        text: "Cancel",
-        onPress: () => {},
-        style: "cancel",
-      },
-      {
-        text: "OK",
-        onPress: async () => {
-          await deleteRoom();
+    Alert.alert(
+      "Bạn chắc chứ?",
+      "Xóa phòng sẽ xóa tất cả hội thoại trong phòng",
+      [
+        {
+          text: "Hủy",
+          onPress: () => {},
+          style: "cancel",
         },
-      },
-    ]);
+        {
+          text: "OK",
+          onPress: async () => {
+            await deleteRoom();
+          },
+        },
+      ]
+    );
   };
 
   const [deleting, setDeleting] = useState(false);
@@ -50,11 +55,11 @@ const ChatListItem = (room: IRoom) => {
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
-            Toast.show(res.payload.message, {
+            Toast.show("Xóa phòng thành công", {
               position: Toast.positions.CENTER,
             });
           } else {
-            alert("Delete room failed");
+            alert("Xóa phòng thất bại");
           }
         }
       })
@@ -63,12 +68,19 @@ const ChatListItem = (room: IRoom) => {
       });
   };
 
+  const { theme } = useThemeContext();
+  const isDarkTheme = theme === "dark";
+
   return (
     <TouchableOpacity
       style={[
         styles.container,
         {
           opacity: deleting ? 0.5 : 1,
+          backgroundColor: isDarkTheme
+            ? AppColors.darkMode.white
+            : AppColors.white,
+          borderWidth: isDarkTheme ? 0 : StyleSheet.hairlineWidth,
         },
       ]}
       onPress={onPressItem}
@@ -79,7 +91,16 @@ const ChatListItem = (room: IRoom) => {
           flex: 1,
         }}
       >
-        <Text style={styles.title}>{deleting ? "Deleting..." : title}</Text>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: isDarkTheme ? AppColors.darkMode.black : AppColors.black,
+            },
+          ]}
+        >
+          {deleting ? "Deleting..." : title}
+        </Text>
         {shortDescription && (
           <Text style={styles.text} numberOfLines={2}>
             {shortDescription}
@@ -88,10 +109,18 @@ const ChatListItem = (room: IRoom) => {
       </View>
       <View style={styles.toolbarContainer}>
         <TouchableOpacity onPress={onPressDelete} style={styles.iconBtn}>
-          <Ionicons name="trash-outline" size={24} color={AppColors.primary} />
+          <Ionicons
+            name="trash-outline"
+            size={24}
+            color={isDarkTheme ? AppColors.darkMode.primary : AppColors.primary}
+          />
         </TouchableOpacity>
         <TouchableOpacity onPress={onPressEdit} style={styles.iconBtn}>
-          <AntDesign name="edit" size={24} color="black" />
+          <AntDesign
+            name="edit"
+            size={24}
+            color={isDarkTheme ? AppColors.darkMode.black : AppColors.black}
+          />
         </TouchableOpacity>
       </View>
       <UpdateRoomModal {...room} />

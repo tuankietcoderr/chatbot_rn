@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { ISave } from "@/schema/client/save";
 import moment from "moment";
 import { useAppDispatch } from "@/store/hook";
@@ -9,6 +9,7 @@ import { afterRemoveSave } from "@/store/features/chat/chat-slice";
 import { Ionicons } from "@expo/vector-icons";
 import AppColors from "@/constants/color";
 import AppFonts from "@/constants/font";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
   const dispatch = useAppDispatch();
@@ -19,7 +20,7 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
-            Toast.show("Unsaved successfully");
+            Toast.show("Bỏ lưu thành công");
             dispatch(afterRemoveSave({ _id: res.payload.data.chat }));
           } else {
             alert(res.payload.message);
@@ -31,8 +32,21 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
       });
   };
 
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: isDarkMode
+            ? AppColors.darkMode.white
+            : AppColors.white,
+          borderWidth: isDarkMode ? 0 : StyleSheet.hairlineWidth,
+        },
+      ]}
+    >
       <View
         style={{
           flex: 1,
@@ -46,7 +60,16 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
             alignItems: "center",
           }}
         >
-          <Text style={styles.title}>{moment(createdAt).format("llll")}</Text>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+              },
+            ]}
+          >
+            {moment(createdAt).format("llll")}
+          </Text>
           <TouchableOpacity
             onPress={onPressUnsave}
             style={{
@@ -75,17 +98,26 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
                 },
               ]}
             >
-              {isLoadingSave ? "Unsaving..." : "Unsave"}
+              {isLoadingSave ? "Đang bỏ lưu..." : "Bỏ lưu"}
             </Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.content}>{chat.answer}</Text>
+        <Text
+          style={[
+            styles.content,
+            {
+              color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+            },
+          ]}
+        >
+          {chat.answer}
+        </Text>
       </View>
     </View>
   );
 };
 
-export default SavedItem;
+export default memo(SavedItem);
 
 const styles = StyleSheet.create({
   container: {

@@ -20,15 +20,16 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { signUpThunk } from "@/store/features/auth/auth-thunk";
 import { selectAuth } from "@/store/features/auth/auth-selector";
 import { State } from "@/constants/state";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "",
       headerTransparent: true,
-      headerLeft: () => (
+      headerLeft: ({ tintColor }) => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <EvilIcons name="chevron-left" size={40} color="black" />
+          <EvilIcons name="chevron-left" size={40} color={tintColor} />
         </TouchableOpacity>
       ),
       headerShown: navigation.canGoBack(),
@@ -65,28 +66,28 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     const { fullName, username, password, confirmPassword } = form;
 
     if (!fullName) {
-      alert("Full name is required");
+      alert("Tên đầy đủ là bắt buộc");
       return false;
     }
 
     if (!username) {
-      alert("Username is required");
+      alert("Tên người dùng là bắt buộc");
       return false;
     }
 
     if (username.length < 6) {
-      alert("Username must be at least 6 characters");
+      alert("Tên người dùng phải có ít nhất 6 ký tự");
       return false;
     }
 
     const usernameRegex = new RegExp("^\\w[\\w.]{2,18}\\w$");
     if (!usernameRegex.test(username)) {
-      alert("Username must be alphanumeric");
+      alert("Tên người dùng không hợp lệ");
       return false;
     }
 
     if (!password) {
-      alert("Password is required");
+      alert("Mật khẩu là bắt buộc");
       return false;
     }
 
@@ -96,13 +97,13 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
 
     if (!passwordRegex.test(password)) {
       alert(
-        "Password must be 8-16 characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
       );
       return false;
     }
 
     if (password !== confirmPassword) {
-      alert("Password and confirm password must be the same");
+      alert("Mật khẩu không khớp");
       return false;
     }
     return true;
@@ -117,7 +118,7 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     dispatch(signUpThunk(form)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         if (res.payload.success) {
-          alert("Sign up successfully. Sign in now");
+          alert("Đăng ký thành công. Đăng nhập ngay!");
           navigation.replace(AppRoutes.SIGNIN);
           navigation.reset({
             index: 0,
@@ -127,47 +128,59 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
           alert(res.payload.message);
         }
       } else {
-        alert("Sign up failed");
+        alert("Đăng ký thất bại");
       }
     });
   };
 
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={styles.titleText}>Sign up</Text>
+        <Text
+          style={[
+            styles.titleText,
+            {
+              color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+            },
+          ]}
+        >
+          Đăng ký
+        </Text>
         <View>
           <MyTextInput
-            label="Full name"
+            label="Tên đầy đủ"
             value={form.fullName}
             onChangeText={(text) => onInputChange(text, "fullName")}
-            placeholder="Enter your full name"
+            placeholder="Nhập tên đầy đủ của bạn"
             autoFocus
             autoComplete="name"
           />
           <MyTextInput
-            label="Username"
+            label="Tên người dùng"
             value={form.username}
             onChangeText={(text) => onInputChange(text, "username")}
-            placeholder="Enter your username"
+            placeholder="Nhập tên người dùng của bạn"
             autoComplete="username"
             keyboardType="default"
           />
           <MyTextInput
-            label="Password"
+            label="Mật khẩu"
             value={form.password}
             onChangeText={(text) => onInputChange(text, "password")}
-            placeholder="Enter your password"
+            placeholder="Nhập mật khẩu của bạn"
             secureTextEntry
             autoComplete="password"
             keyboardType="default"
             isPassword
           />
           <MyTextInput
-            label="Confirm password"
+            label="Xác nhận mật khẩu"
             value={form.confirmPassword}
             onChangeText={(text) => onInputChange(text, "confirmPassword")}
-            placeholder="Re-enter your password"
+            placeholder="Nhập lại mật khẩu để xác nhận"
             secureTextEntry
             keyboardType="default"
             isPassword
@@ -178,18 +191,52 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
             styles.signupBtn,
             {
               opacity: isLoading ? 0.5 : 1,
+              backgroundColor: isDarkMode
+                ? AppColors.darkMode.primary
+                : AppColors.primary,
             },
           ]}
           onPress={onPressSignUp}
           disabled={isLoading}
         >
-          {isLoading && <ActivityIndicator color={AppColors.white} />}
-          <Text style={styles.signupBtnText}>Become a Chatbot's user</Text>
+          {isLoading && <ActivityIndicator />}
+          <Text
+            style={[
+              styles.signupBtnText,
+              {
+                color: isDarkMode
+                  ? AppColors.darkMode.onPrimary
+                  : AppColors.onPrimary,
+              },
+            ]}
+          >
+            Trở thành người dùng của Chatbot
+          </Text>
         </TouchableOpacity>
         <View style={styles.signinContainer}>
-          <Text style={styles.text}>Already have an account? </Text>
+          <Text
+            style={[
+              styles.text,
+              {
+                color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+              },
+            ]}
+          >
+            Đã có tài khoản?{" "}
+          </Text>
           <TouchableOpacity onPress={onPressSignInNow} disabled={isLoading}>
-            <Text style={styles.signupText}>Sign in now</Text>
+            <Text
+              style={[
+                styles.signupText,
+                {
+                  color: isDarkMode
+                    ? AppColors.darkMode.primary
+                    : AppColors.primary,
+                },
+              ]}
+            >
+              Đăng nhập ngay
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

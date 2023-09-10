@@ -4,25 +4,30 @@ import ChatbotIcon from "./ChatbotIcon";
 import AppColors from "@/constants/color";
 import AppFonts from "@/constants/font";
 import { AppCommon } from "@/constants/common";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const InitialChatbot = () => {
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
   return (
     <View
       style={{
         flexDirection: "row",
         alignItems: "center",
         gap: 10,
-        backgroundColor: AppColors.white,
+        backgroundColor: isDarkMode
+          ? AppColors.darkMode.white
+          : AppColors.white,
         padding: 10,
         borderRadius: 8,
-        borderWidth: StyleSheet.hairlineWidth,
+        borderWidth: isDarkMode ? 0 : StyleSheet.hairlineWidth,
         borderColor: "#ADC4CE",
       }}
     >
       <ChatbotIcon />
       <Text
         style={{
-          color: AppColors.black,
+          color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
           fontFamily: AppFonts.regular,
           maxWidth: AppCommon.SCREEN_WIDTH - 100,
         }}

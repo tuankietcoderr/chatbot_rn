@@ -1,13 +1,16 @@
 import { getAnswer } from "@/bot/bot-service";
 import ChatItem from "@/components/ChatItem";
+import ChatbotIcon from "@/components/ChatbotIcon";
 import GeneratingAnswer from "@/components/GeneratingAnswer";
 import InitialChatbot from "@/components/InitialChatbot";
 import { MainHeaderRight, MainHeaderTitle } from "@/components/MainHeader";
 import Related from "@/components/Related";
+import RelatedText from "@/components/RelatedText";
 import { AppCommon } from "@/constants/common";
 import { State } from "@/constants/state";
 import { useBotDataContext } from "@/context/BotDataContext";
-import { ModalProvider } from "@/context/ModalContext";
+import { useDeadRoomContext } from "@/context/DeadRoomContext";
+import { useThemeContext } from "@/context/ThemeContext";
 import { randomUUID } from "@/lib/random";
 import { IChatItem } from "@/schema/client/chat-item";
 import { IAnswer } from "@/schema/server/answer";
@@ -46,11 +49,6 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   const isChatLoading = chatStatus === State.LOADING;
   const params = useRoute<any>();
   const roomId = params?.params?.roomId;
-  const numberOfPage = Math.ceil(chats.length / MAX_ITEM_PER_PAGE);
-  const [page, setPage] = useState(1);
-  const [firstScroll, setFirst] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const currrentY = useRef(null);
   const [chatsState, setChatsState] = useState<IChatItem[]>([]);
   const {
     chosenRelated,
@@ -60,24 +58,9 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     relatedTthc,
     setRelatedTthc,
   } = useBotDataContext();
-
-  const onScroll = (event) => {
-    if (firstScroll === null) {
-      setFirst(event.nativeEvent.contentOffset.y);
-    }
-    currrentY.current = event.nativeEvent.contentOffset.y;
-  };
-  const onScrollENd = (event) => {
-    if (firstScroll && event.nativeEvent.contentOffset.y < firstScroll) {
-      if (page < numberOfPage) {
-        setIsUploading(true);
-        setTimeout(() => {
-          setPage((prev) => prev + 1);
-          setIsUploading(false);
-        }, SCROLL_UP_THRESHOLD);
-      }
-    }
-  };
+  const { theme } = useThemeContext();
+  const isDarkTheme = theme === "dark";
+  const { dead, setDead, setCurrentRoomId } = useDeadRoomContext();
 
   useFocusEffect(
     useCallback(() => {
@@ -106,7 +89,6 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   }, []);
 
   useEffect(() => {
-    setPage(1);
     setRelatedQ([]);
     setRelatedTthc([]);
     setDisableChat(false);
@@ -117,27 +99,34 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     (async function () {
       if (!roomId) return;
+      setCurrentRoomId((prev) => {
+        if (prev !== roomId) {
+          setDead(true);
+        }
+        return roomId as string;
+      });
       dispatch(getChatsOfRoomThunk(roomId));
     })();
   }, [roomId]);
 
   useEffect(() => {
-    if (chats && chats.length > 0) {
-      setChatsState(
-        chats.slice(Math.max(chats.length - MAX_ITEM_PER_PAGE, 0), chats.length)
-      );
-    }
-  }, [chats]);
+    (async function () {
+      if (dead) {
+        await getAnswer({
+          dead: true,
+          roomId,
+        }).finally(() => {
+          setDead(false);
+        });
+      }
+    })();
+  }, [dead]);
 
   useEffect(() => {
-    setChatsState((prev) => [
-      ...chats.slice(
-        Math.max(chats.length - MAX_ITEM_PER_PAGE * page, 0),
-        Math.max(chats.length - MAX_ITEM_PER_PAGE * (page - 1), 0)
-      ),
-      ...prev,
-    ]);
-  }, [page]);
+    if (chats && chats.length > 0) {
+      setChatsState(chats);
+    }
+  }, [chats]);
 
   const [message, setMessage] = React.useState<string>("");
   const [disableChat, setDisableChat] = React.useState<boolean>(false);
@@ -160,18 +149,16 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       },
     ]);
 
-    onSend(_message).then(async () => {
+    onSend().then(async () => {
       await onResponse(_message);
     });
   };
 
-  const onSend = async (message: string) => {
+  const onSend = async () => {
     setDisableChat(true);
   };
 
   const onResponse = async (_message: string) => {
-    // setDisableChat(true);
-
     const answerRes = await getAnswer({
       question: _message,
       database: chosenRelated,
@@ -205,22 +192,6 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     });
   };
 
-  const onPressQ = () => {
-    setChosenRelated(["q"]);
-  };
-
-  const onPressAP = () => {
-    setChosenRelated(["tthc"]);
-  };
-
-  const onPressQoAP = (item: string) => {
-    onPressSend(item);
-  };
-
-  const onPressStop = () => {
-    setDisableChat(false);
-  };
-
   const renderRelated =
     JSON.stringify(chosenRelated) === JSON.stringify(["q"])
       ? relatedQ
@@ -235,21 +206,20 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       >
         {!isChatLoading ? (
           <FlatList
-            initialNumToRender={MAX_ITEM_PER_PAGE}
-            ListHeaderComponent={() => isUploading && <ActivityIndicator />}
-            onScrollEndDrag={onScrollENd}
-            onScroll={onScroll}
+            // initialNumToRender={MAX_ITEM_PER_PAGE}
             ref={flatListRef}
-            onContentSizeChange={() => {
-              flatListRef.current && flatListRef.current?.scrollToEnd();
+            onContentSizeChange={(w, h) => {
+              setTimeout(() => {
+                flatListRef.current &&
+                  flatListRef.current?.scrollToOffset({
+                    offset: h,
+                    animated: false,
+                  });
+              }, 100);
             }}
             ListEmptyComponent={() => <InitialChatbot />}
             data={chatsState.length > 0 ? [...chatsState, {} as IChatItem] : []}
-            renderItem={({ item }) => (
-              <ModalProvider>
-                <ChatItem chat={item} />
-              </ModalProvider>
-            )}
+            renderItem={({ item }) => <ChatItem chat={item} />}
             contentContainerStyle={{
               gap: 10,
               padding: 16,
@@ -263,35 +233,16 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                 }}
               >
                 <GeneratingAnswer visible={disableChat} />
-                {!disableChat &&
-                  chatsState.length > 0 &&
-                  chatsState[chatsState.length - 1].answer &&
-                  chosenRelated === null && (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        gap: 10,
-                      }}
-                    >
-                      <TouchableOpacity
-                        style={styles.relatedBtn}
-                        onPress={onPressQ}
-                      >
-                        <Text style={styles.relatedText}>
-                          Câu hỏi liên quan
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.relatedBtn}
-                        onPress={onPressAP}
-                      >
-                        <Text style={styles.relatedText}>
-                          Thủ tục hành chính liên quan
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                <RelatedText
+                  visible={
+                    !!(
+                      !disableChat &&
+                      chatsState.length > 0 &&
+                      chatsState[chatsState.length - 1].answer &&
+                      chosenRelated === null
+                    )
+                  }
+                />
                 <Related
                   data={renderRelated}
                   callback={onPressSend}
@@ -317,10 +268,31 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
           <Text style={styles.text}>Stop generating</Text>
         </TouchableOpacity>
       )} */}
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.inputContainer,
+          {
+            backgroundColor: isDarkTheme
+              ? AppColors.darkMode.white
+              : AppColors.white,
+            borderWidth: isDarkTheme ? 0 : StyleSheet.hairlineWidth,
+          },
+        ]}
+      >
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: isDarkTheme
+                ? AppColors.darkMode.white
+                : AppColors.white,
+              color: isDarkTheme ? AppColors.darkMode.black : AppColors.black,
+            },
+          ]}
           placeholder={disableChat ? "Đang trả lời..." : "Nhập câu hỏi của bạn"}
+          placeholderTextColor={
+            isDarkTheme ? AppColors.darkMode.gray : AppColors.gray
+          }
           onChangeText={onInputChange}
           value={message}
           multiline
@@ -329,7 +301,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
           onFocus={() => {
             if (chatsState.length > 0) {
               flatListRef.current?.scrollToIndex({
-                index: chatsState.length - 1,
+                index: chatsState.length,
               });
             }
           }}
@@ -347,6 +319,9 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
               width: 30,
               height: 30,
               padding: 16,
+              tintColor: isDarkTheme
+                ? AppColors.darkMode.black
+                : AppColors.primary,
             }}
             resizeMode="contain"
           />

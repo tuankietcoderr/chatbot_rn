@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/core";
 import AppRoutes from "@/constants/route";
 import { useAppDispatch } from "@/store/hook";
 import { createRoomThunk } from "@/store/features/room/room-thunk";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const NewChatButton = () => {
   const navigate = useNavigation<any>();
@@ -32,12 +33,19 @@ const NewChatButton = () => {
         setIsLoading(false);
       });
   };
+
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
   return (
     <TouchableOpacity
       style={[
         styles.addBtn,
         {
           opacity: isLoading ? 0.5 : 1,
+          backgroundColor: isDarkMode
+            ? AppColors.darkMode.primary
+            : AppColors.primary,
         },
       ]}
       onPress={onPressNewChat}
@@ -45,13 +53,41 @@ const NewChatButton = () => {
     >
       {!isLoading ? (
         <>
-          <AntDesign name="plus" size={24} color={AppColors.onPrimary} />
-          <Text style={styles.btnText}>Cuộc trò chuyện mới</Text>
+          <AntDesign
+            name="plus"
+            size={24}
+            color={
+              isDarkMode ? AppColors.darkMode.onPrimary : AppColors.onPrimary
+            }
+          />
+          <Text
+            style={[
+              styles.btnText,
+              {
+                color: isDarkMode
+                  ? AppColors.darkMode.onPrimary
+                  : AppColors.onPrimary,
+              },
+            ]}
+          >
+            Cuộc trò chuyện mới
+          </Text>
         </>
       ) : (
         <>
           <ActivityIndicator size="small" color={AppColors.onPrimary} />
-          <Text style={styles.btnText}>Đang tạo...</Text>
+          <Text
+            style={[
+              styles.btnText,
+              {
+                color: isDarkMode
+                  ? AppColors.darkMode.onPrimary
+                  : AppColors.onPrimary,
+              },
+            ]}
+          >
+            Đang tạo...
+          </Text>
         </>
       )}
     </TouchableOpacity>

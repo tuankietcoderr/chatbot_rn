@@ -6,7 +6,6 @@ import AppFonts from "@/constants/font";
 import { FlatList } from "react-native";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { selectSave } from "@/store/features/save/save-selector";
-import { ModalProvider } from "@/context/ModalContext";
 import SavedItem from "@/components/SavedItem";
 import { randomUUID } from "@/lib/random";
 import Empty from "@/components/Empty";
@@ -17,11 +16,11 @@ import { ActivityIndicator } from "react-native";
 const Save = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Saved",
+      headerTitle: "Đã lưu",
       headerTitleAlign: "center",
-      headerLeft: () => (
+      headerLeft: ({ tintColor }) => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <EvilIcons name="chevron-left" size={40} color="black" />
+          <EvilIcons name="chevron-left" size={40} color={tintColor} />
         </TouchableOpacity>
       ),
       headerTitleStyle: {
@@ -50,12 +49,9 @@ const Save = ({ navigation }: NativeStackScreenProps<any>) => {
       {!isLoading ? (
         <FlatList
           data={saves}
-          renderItem={({ item }) => (
-            <ModalProvider>
-              <SavedItem {...item} />
-            </ModalProvider>
-          )}
-          ListEmptyComponent={<Empty content="Nothing here" />}
+          initialNumToRender={5}
+          renderItem={({ item }) => <SavedItem {...item} />}
+          ListEmptyComponent={<Empty content="Trống" />}
           keyExtractor={(item) => item?._id || randomUUID()}
           contentContainerStyle={{
             rowGap: 8,

@@ -29,14 +29,14 @@ const ChatList = ({ navigation }: NativeStackScreenProps<any>) => {
         fontFamily: AppFonts.semiBold,
       },
       headerTitleAlign: navigation.canGoBack() ? "center" : "left",
-      headerLeft: () => (
+      headerLeft: ({ tintColor }) => (
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{
             display: navigation.canGoBack() ? "flex" : "none",
           }}
         >
-          <EvilIcons name="chevron-left" size={40} color="black" />
+          <EvilIcons name="chevron-left" size={40} color={tintColor} />
         </TouchableOpacity>
       ),
       headerRight: () => <MainHeaderRight navigation={navigation} />,

@@ -1,3 +1,11 @@
+import AppColors from "@/constants/color";
+import AppFonts from "@/constants/font";
+import AppFontSizes from "@/constants/font-size";
+import { useModalContext } from "@/context/ModalContext";
+import { IRoom } from "@/schema/client/room";
+import { modifyRoomInfoThunk } from "@/store/features/room/room-thunk";
+import { useAppDispatch } from "@/store/hook";
+import React from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -5,17 +13,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import Toast from "react-native-root-toast";
 import MyModal from "./MyModal";
 import MyTextInput from "./MyTextInput";
-import { IRoom } from "@/schema/client/room";
-import AppColors from "@/constants/color";
-import { useModalContext } from "@/context/ModalContext";
-import AppFonts from "@/constants/font";
-import AppFontSizes from "@/constants/font-size";
-import { useAppDispatch } from "@/store/hook";
-import { modifyRoomInfoThunk } from "@/store/features/room/room-thunk";
-import Toast from "react-native-root-toast";
 
 const UpdateRoomModal = (room: IRoom) => {
   const { isVisible, onModalClose } = useModalContext();
@@ -35,12 +35,12 @@ const UpdateRoomModal = (room: IRoom) => {
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
-            Toast.show("Update room successfully", {
+            Toast.show("Cập nhật phòng thành công", {
               position: Toast.positions.CENTER,
             });
             onModalClose();
           } else {
-            alert("Update room failed");
+            alert("Cập nhật phòng thất bại");
           }
         }
       })
@@ -53,15 +53,15 @@ const UpdateRoomModal = (room: IRoom) => {
     <MyModal
       isVisible={isVisible}
       onClose={onModalClose}
-      title="Edit room information"
+      title="Chỉnh sửa thông tin phòng"
       containerStyle={{
         height: "60%",
       }}
     >
       <View>
         <MyTextInput
-          label="Title"
-          placeholder="Enter new title"
+          label="Tiêu đề"
+          placeholder="Nhập tiêu đề mới"
           value={editForm.title}
           onChangeText={(text) => onInputChange(text, "title")}
           containerStyle={{
@@ -70,8 +70,8 @@ const UpdateRoomModal = (room: IRoom) => {
           }}
         />
         <MyTextInput
-          label="Short description"
-          placeholder="Enter new short description"
+          label="Mô tả ngắn"
+          placeholder="Nhập mô tả ngắn"
           value={editForm.shortDescription}
           onChangeText={(text) => onInputChange(text, "shortDescription")}
           containerStyle={{
@@ -91,7 +91,7 @@ const UpdateRoomModal = (room: IRoom) => {
           onPress={onPressSubmit}
         >
           {isLoading && <ActivityIndicator color={AppColors.white} />}
-          <Text style={styles.editBtnText}>Submit</Text>
+          <Text style={styles.editBtnText}>Lưu</Text>
         </TouchableOpacity>
       </View>
     </MyModal>

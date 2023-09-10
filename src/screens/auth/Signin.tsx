@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { selectAuth } from "@/store/features/auth/auth-selector";
 import { State } from "@/constants/state";
 import { signInThunk } from "@/store/features/auth/auth-thunk";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -58,11 +59,11 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
   const validateForm = (): boolean => {
     const { username, password } = form;
     if (!username) {
-      alert("Username is required");
+      alert("Tên người dùng là bắt buộc");
       return false;
     }
     if (!password) {
-      alert("Password is required");
+      alert("Mật khẩu là bắt buộc");
       return false;
     }
     return true;
@@ -89,23 +90,35 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
     });
   };
 
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={styles.titleText}>Sign in</Text>
+        <Text
+          style={[
+            styles.titleText,
+            {
+              color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+            },
+          ]}
+        >
+          Đăng nhập
+        </Text>
         <View>
           <MyTextInput
-            label="Username"
+            label="Tên người dùng"
             value={form.username}
             onChangeText={(text) => onInputChange(text, "username")}
-            placeholder="Enter your username"
+            placeholder="Nhập tên người dùng của bạn"
             autoFocus
           />
           <MyTextInput
-            label="Password"
+            label="Mật khẩu"
             value={form.password}
             onChangeText={(text) => onInputChange(text, "password")}
-            placeholder="Enter your password"
+            placeholder="Nhập mật khẩu của bạn"
             keyboardType="default"
             isPassword
             secureTextEntry
@@ -116,18 +129,52 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
             styles.signinBtn,
             {
               opacity: isLoading ? 0.5 : 1,
+              backgroundColor: isDarkMode
+                ? AppColors.darkMode.primary
+                : AppColors.primary,
             },
           ]}
           disabled={isLoading}
           onPress={onPressLetsGo}
         >
-          {isLoading && <ActivityIndicator color={AppColors.white} />}
-          <Text style={styles.signinBtnText}>Let's go</Text>
+          {isLoading && <ActivityIndicator />}
+          <Text
+            style={[
+              styles.signinBtnText,
+              {
+                color: isDarkMode
+                  ? AppColors.darkMode.onPrimary
+                  : AppColors.onPrimary,
+              },
+            ]}
+          >
+            Khám phá ngay
+          </Text>
         </TouchableOpacity>
         <View style={styles.signupContainer}>
-          <Text style={styles.text}>No account yet? </Text>
+          <Text
+            style={[
+              styles.text,
+              {
+                color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+              },
+            ]}
+          >
+            Chưa có tài khoản?{" "}
+          </Text>
           <TouchableOpacity onPress={onPressSignUpNow}>
-            <Text style={styles.signupText}>Sign up now</Text>
+            <Text
+              style={[
+                styles.signupText,
+                {
+                  color: isDarkMode
+                    ? AppColors.darkMode.primary
+                    : AppColors.primary,
+                },
+              ]}
+            >
+              Đăng ký ngay
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

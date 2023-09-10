@@ -12,6 +12,7 @@ import AppFonts from "@/constants/font";
 import AppFontSizes from "@/constants/font-size";
 import { Feather } from "@expo/vector-icons";
 import AppColors from "@/constants/color";
+import { useThemeContext } from "@/context/ThemeContext";
 
 type Props = TextInputProps & {
   label: string;
@@ -35,14 +36,49 @@ const MyTextInput = ({
     setShowPassword((prev) => !prev);
   };
 
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
   return (
-    <View style={[styles.inputContainer, containerStyle]}>
-      {labelVisible && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+    <View
+      style={[
+        styles.inputContainer,
+        {
+          backgroundColor: isDarkMode
+            ? AppColors.darkMode.white
+            : AppColors.white,
+        },
+        containerStyle,
+      ]}
+    >
+      {labelVisible && (
+        <Text
+          style={[
+            styles.label,
+            {
+              color: isDarkMode
+                ? AppColors.darkMode.primary
+                : AppColors.primary,
+            },
+            labelStyle,
+          ]}
+        >
+          {label}
+        </Text>
+      )}
       <View style={styles.wrap}>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+            },
+          ]}
           {...props}
           secureTextEntry={isPassword && !showPassword}
+          placeholderTextColor={
+            isDarkMode ? AppColors.darkMode.gray : AppColors.gray
+          }
         />
         {isPassword &&
           (showPassword ? (

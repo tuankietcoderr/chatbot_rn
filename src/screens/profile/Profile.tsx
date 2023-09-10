@@ -27,15 +27,16 @@ import {
   View,
 } from "react-native";
 import appData from "../../../app.json";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "Hồ sơ",
       headerTitleAlign: "center",
-      headerLeft: () => (
+      headerLeft: ({ tintColor }) => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <EvilIcons name="chevron-left" size={40} color="black" />
+          <EvilIcons name="chevron-left" size={40} color={tintColor} />
         </TouchableOpacity>
       ),
       headerTitleStyle: {
@@ -87,48 +88,86 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
     ]);
   }
 
+  const { theme, toggleTheme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
+  const changeTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    toggleTheme(newTheme);
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.info}>
-        <Image
-          source={require("@assets/logo/logo_4x.png")}
-          style={{
-            width: 140,
-            height: 140,
-          }}
-          resizeMode="contain"
-        />
-        <Text style={styles.fullName}>{user?.fullName}</Text>
-        <Text style={styles.username}>@{user?.username}</Text>
-        <TouchableOpacity style={styles.editProfileBtn}>
+      <View>
+        <View
+          style={[
+            styles.info,
+            {
+              backgroundColor: isDarkMode ? "transparent" : AppColors.white,
+            },
+          ]}
+        >
+          <Image
+            source={require("@assets/logo/logo_4x.png")}
+            style={{
+              width: 140,
+              height: 140,
+            }}
+            resizeMode="contain"
+          />
+          <Text
+            style={[
+              styles.fullName,
+              {
+                color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+              },
+            ]}
+          >
+            {user?.fullName}
+          </Text>
+          <Text style={styles.username}>@{user?.username}</Text>
+          {/* <TouchableOpacity style={styles.editProfileBtn}>
           <Text style={styles.editProfileBtnText}>Sửa hồ sơ</Text>
           <FontAwesome
             name="angle-right"
             size={24}
             color={AppColors.onPrimary}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        </View>
+        <View>
+          <Text style={styles.title}>Nội dung</Text>
+          <InProfileItem
+            title="Câu trả lời đã lưu"
+            to={AppRoutes.SAVED}
+            icon={
+              <Ionicons
+                name="ios-bookmarks-outline"
+                size={24}
+                color={isDarkMode ? AppColors.darkMode.black : AppColors.black}
+              />
+            }
+          />
+        </View>
+        <View>
+          <Text style={styles.title}>Tùy chỉnh</Text>
+          <InProfileItem
+            title="Chế độ tối"
+            icon={
+              <Ionicons
+                name="moon-outline"
+                size={24}
+                color={isDarkMode ? AppColors.darkMode.black : AppColors.black}
+              />
+            }
+            type="switch"
+            toggleCb={changeTheme}
+            switchValue={isDarkMode}
+          />
+        </View>
       </View>
-      <View>
-        <Text style={styles.title}>Nội dung</Text>
-        <InProfileItem
-          title="Câu trả lời đã lưu"
-          to={AppRoutes.SAVED}
-          icon={
-            <Ionicons name="ios-bookmarks-outline" size={24} color="black" />
-          }
-        />
-      </View>
-      <View>
-        <Text style={styles.title}>Tùy chỉnh</Text>
-        <InProfileItem
-          title="Chế độ tối"
-          icon={<Ionicons name="moon-outline" size={24} color="black" />}
-          type="switch"
-        />
-      </View>
-      {/* <Text style={styles.version}>
-        Version{" "}
+      <Text style={styles.version}>
+        Phiên bản{" "}
         <Text
           style={{
             fontFamily: AppFonts.semiBold,
@@ -136,7 +175,7 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
         >
           {appData.expo.version}
         </Text>
-      </Text> */}
+      </Text>
     </View>
   );
 };
@@ -146,6 +185,7 @@ export default Profile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "space-between",
   },
   title: {
     fontFamily: AppFonts.semiBold,

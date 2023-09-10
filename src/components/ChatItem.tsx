@@ -22,6 +22,7 @@ import {
 import Toast from "react-native-root-toast";
 import { selectUser } from "@/store/features/auth/auth-selector";
 import ChatbotIcon from "./ChatbotIcon";
+import { useThemeContext } from "@/context/ThemeContext";
 
 type Props = {
   chat: IChatItem;
@@ -29,7 +30,6 @@ type Props = {
 
 const ChatItem = ({ chat }: Props) => {
   const { question, answer, reference, isSaved, _id } = chat;
-  const [showReference, setShowReference] = useState(true);
   const [isSavedState, setIsSavedState] = useState(isSaved);
 
   const dispatch = useAppDispatch();
@@ -90,6 +90,8 @@ const ChatItem = ({ chat }: Props) => {
   };
 
   const CANT_UNDERSTAND = "Xin lỗi, tôi không hiểu câu hỏi của bạn";
+  const { theme } = useThemeContext();
+  const isDarkTheme = theme === "dark";
 
   return (
     <View
@@ -122,7 +124,7 @@ const ChatItem = ({ chat }: Props) => {
               <Ionicons
                 name="person-circle-outline"
                 size={24}
-                color="gray"
+                color={isDarkTheme ? AppColors.darkMode.gray : AppColors.gray}
                 style={{
                   alignSelf: "flex-start",
                 }}
@@ -131,8 +133,10 @@ const ChatItem = ({ chat }: Props) => {
                 style={[
                   styles.text,
                   {
-                    // color: AppColors.onPrimary,
                     maxWidth: AppCommon.SCREEN_WIDTH - 100,
+                    color: isDarkTheme
+                      ? AppColors.darkMode.black
+                      : AppColors.black,
                   },
                 ]}
               >
@@ -152,8 +156,10 @@ const ChatItem = ({ chat }: Props) => {
           style={[
             styles.container,
             {
-              backgroundColor: AppColors.white,
-              borderWidth: StyleSheet.hairlineWidth,
+              backgroundColor: isDarkTheme
+                ? AppColors.darkMode.white
+                : AppColors.white,
+              borderWidth: isDarkTheme ? 0 : StyleSheet.hairlineWidth,
               borderColor: "#ADC4CE",
             },
           ]}
@@ -170,7 +176,9 @@ const ChatItem = ({ chat }: Props) => {
               style={[
                 styles.text,
                 {
-                  color: AppColors.black,
+                  color: isDarkTheme
+                    ? AppColors.darkMode.black
+                    : AppColors.black,
                   maxWidth: AppCommon.SCREEN_WIDTH - 100,
                 },
               ]}
@@ -185,11 +193,19 @@ const ChatItem = ({ chat }: Props) => {
                   styles.actionWithIcon,
                   {
                     backgroundColor: isSavedState
-                      ? AppColors.primary
+                      ? isDarkTheme
+                        ? AppColors.darkMode.primary
+                        : AppColors.primary
+                      : isDarkTheme
+                      ? AppColors.darkMode.white
                       : AppColors.white,
                     borderColor: isSavedState
                       ? AppColors.primary
                       : AppColors.gray,
+                    borderWidth:
+                      isDarkTheme && isSavedState
+                        ? 0
+                        : StyleSheet.hairlineWidth,
                   },
                 ]}
                 onPress={isSavedState ? onPressUnsave : onPressSave}
@@ -197,14 +213,26 @@ const ChatItem = ({ chat }: Props) => {
                 <Ionicons
                   name={isSavedState ? "ios-bookmark" : "ios-bookmark-outline"}
                   size={16}
-                  color={isSavedState ? AppColors.onPrimary : AppColors.black}
+                  color={
+                    isSavedState
+                      ? isDarkTheme
+                        ? AppColors.darkMode.onPrimary
+                        : AppColors.onPrimary
+                      : isDarkTheme
+                      ? AppColors.darkMode.black
+                      : AppColors.black
+                  }
                 />
                 <Text
                   style={[
                     styles.text,
                     {
                       color: isSavedState
-                        ? AppColors.onPrimary
+                        ? isDarkTheme
+                          ? AppColors.darkMode.onPrimary
+                          : AppColors.onPrimary
+                        : isDarkTheme
+                        ? AppColors.darkMode.black
                         : AppColors.black,
                     },
                   ]}
@@ -219,11 +247,26 @@ const ChatItem = ({ chat }: Props) => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.actionWithIcon}
+                style={[styles.actionWithIcon, {}]}
                 onPress={onCopyToClipboard}
               >
-                <Ionicons name="ios-copy-outline" size={16} color="black" />
-                <Text style={styles.text}>
+                <Ionicons
+                  name="ios-copy-outline"
+                  size={16}
+                  color={
+                    isDarkTheme ? AppColors.darkMode.black : AppColors.black
+                  }
+                />
+                <Text
+                  style={[
+                    styles.text,
+                    {
+                      color: isDarkTheme
+                        ? AppColors.darkMode.black
+                        : AppColors.black,
+                    },
+                  ]}
+                >
                   {isCopying === null
                     ? "Sao chép"
                     : isCopying === true
@@ -235,8 +278,18 @@ const ChatItem = ({ chat }: Props) => {
           )}
         </View>
 
-        {reference && reference?.length > 0 && showReference && answer && (
-          <View style={styles.referenceContainer}>
+        {reference && reference?.length > 0 && answer && (
+          <View
+            style={[
+              styles.referenceContainer,
+              {
+                backgroundColor: isDarkTheme
+                  ? AppColors.darkMode.white
+                  : AppColors.white,
+                borderWidth: isDarkTheme ? 0 : StyleSheet.hairlineWidth,
+              },
+            ]}
+          >
             <EvilIcons
               name="link"
               size={30}
@@ -255,7 +308,14 @@ const ChatItem = ({ chat }: Props) => {
                           console.error("Couldn't load page", err)
                         );
                       }}
-                      style={styles.referenceLink}
+                      style={[
+                        styles.referenceLink,
+                        {
+                          color: isDarkTheme
+                            ? AppColors.darkMode.primary
+                            : AppColors.primary,
+                        },
+                      ]}
                     >
                       {ref.title}
                     </Text>

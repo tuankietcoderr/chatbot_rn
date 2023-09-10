@@ -4,6 +4,7 @@ import { AppCommon } from "@/constants/common";
 import { useBotDataContext } from "@/context/BotDataContext";
 import AppColors from "@/constants/color";
 import AppFonts from "@/constants/font";
+import { useThemeContext } from "@/context/ThemeContext";
 
 type Props = {
   data: string[];
@@ -30,6 +31,8 @@ const Related = ({ data, callback, visible }: Props) => {
   const onPressQoAP = (item: string) => {
     callback(item);
   };
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
   return visible ? (
     <View
       style={{
@@ -53,7 +56,9 @@ const Related = ({ data, callback, visible }: Props) => {
           style={[
             styles.relatedBtn,
             {
-              backgroundColor: AppColors.primary,
+              backgroundColor: isDarkMode
+                ? AppColors.darkMode.primary
+                : AppColors.primary,
             },
           ]}
           onPress={
@@ -66,7 +71,9 @@ const Related = ({ data, callback, visible }: Props) => {
             style={[
               styles.text,
               {
-                color: AppColors.onPrimary,
+                color: isDarkMode
+                  ? AppColors.darkMode.onPrimary
+                  : AppColors.onPrimary,
               },
             ]}
           >
