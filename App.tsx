@@ -21,8 +21,8 @@ import { store } from "@/store/store";
 import * as SplashScreen from "expo-splash-screen";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { Provider } from "react-redux";
-SplashScreen.preventAutoHideAsync();
 
+SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [fontsLoaded] = useFonts({
     Manrope_200ExtraLight,
@@ -59,12 +59,3 @@ export default function App() {
     </RootSiblingParent>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

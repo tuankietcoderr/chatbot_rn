@@ -1,7 +1,8 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState, memo } from "react";
+import React, { useState, memo, useEffect } from "react";
 import { ISave } from "@/schema/client/save";
 import moment from "moment";
+import "moment/locale/vi";
 import { useAppDispatch } from "@/store/hook";
 import { removeSaveThunk } from "@/store/features/save/save-thunk";
 import Toast from "react-native-root-toast";

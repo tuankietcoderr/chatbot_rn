@@ -1,5 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
+  "moduleResolution": "node",
+  "allowSyntheticDefaultImports": true,
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
