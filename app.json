@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "chatbot_rn",
-    "slug": "chatbot_rn",
+    "name": "Chatbot",
+    "slug": "chatbot",
     "version": "1.0.0",
     "scheme": "com.groupone.chatbot",
     "orientation": "portrait",
@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
