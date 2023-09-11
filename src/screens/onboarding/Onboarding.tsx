@@ -45,7 +45,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
               }
             });
           } else {
-            if (isFirstTime === "true") {
+            if (isFirstTime === "false") {
               // ! replace with true
               navigation.replace(AppRoutes.SIGNIN);
               setTimeout(() => {
@@ -82,13 +82,14 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
           resizeMode="contain"
         />
       ),
-      title: <Text style={styles.title}>Welcome to our Chatbot!</Text>,
+      title: <Text style={styles.title}>Chào mừng đến với Chatbot!</Text>,
       backgroundColor: "transparent",
     },
     {
       subtitle: (
         <Text style={styles.text}>
-          Discover a smarter way to access government services.
+          Khám phá một cách thông minh hơn để truy cập các dịch vụ của chính
+          phủ.
         </Text>
       ),
       image: (
@@ -98,13 +99,14 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
           resizeMode="contain"
         />
       ),
-      title: <Text style={styles.title}>Embrace Efficiency</Text>,
+      title: <Text style={styles.title}>Nắm bắt hiệu quả</Text>,
       backgroundColor: "transparent",
     },
     {
       subtitle: (
         <Text style={styles.text}>
-          Our chatbot can help you with permits and public program. Just ask us!
+          Chatbot của chúng tôi có thể giúp bạn về giấy phép và chương trình
+          công cộng. Chỉ cần hỏi chúng tôi!
         </Text>
       ),
       image: (
@@ -114,7 +116,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
           resizeMode="contain"
         />
       ),
-      title: <Text style={styles.title}>Seamless Service Access</Text>,
+      title: <Text style={styles.title}>Truy cập dịch vụ liền mạch</Text>,
       backgroundColor: "transparent",
     },
     {
@@ -126,11 +128,13 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
           resizeMode="contain"
         />
       ),
-      title: <Text style={styles.title}>Your Personalized Guide</Text>,
+      title: (
+        <Text style={styles.title}>Hướng dẫn được cá nhân hóa của bạn</Text>
+      ),
       subtitle: (
         <Text style={styles.text}>
-          Chatbot gets you what you need, quickly and easily. Your hassle-free
-          experience starts now!
+          Chatbot mang đến cho bạn những gì bạn cần một cách nhanh chóng và dễ
+          dàng. Trải nghiệm không rắc rối của bạn bắt đầu ngay bây giờ!
         </Text>
       ),
     },
@@ -157,7 +161,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
     >
       <Onboarding
         pageIndexCallback={(index) => {
-          setShowStartButton(index === 2);
+          setShowStartButton(index === 3);
         }}
         NextButtonComponent={undefined}
         showDone={false}
@@ -191,7 +195,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
               textAlign: "center",
             }}
           >
-            Let's get started
+            Bắt đầu ngay
           </Text>
         </TouchableOpacity>
       ) : (
@@ -206,7 +210,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
               textDecorationLine: "underline",
             }}
           >
-            Skip
+            Bỏ qua
           </Text>
         </TouchableOpacity>
       )}

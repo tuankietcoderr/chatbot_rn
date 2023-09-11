@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -31,7 +33,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "0f4aa3af-97f6-4d78-a715-58a1adb0ff08"
+        "projectId": "b036d54d-cb38-487b-9b17-812d7a365aaa"
       }
     },
     "owner": "tuankietcoder"
