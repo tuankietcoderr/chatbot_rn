@@ -21,6 +21,7 @@ import { signUpThunk } from "@/store/features/auth/auth-thunk";
 import { selectAuth } from "@/store/features/auth/auth-selector";
 import { State } from "@/constants/state";
 import { useThemeContext } from "@/context/ThemeContext";
+import { sendVerifyEmail } from "@/store/features/auth/auth-service";
 
 const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -118,9 +119,11 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     dispatch(signUpThunk(form)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         if (res.payload.success) {
-          alert(
-            "Chúng tôi đã gửi email xác nhận đến email của bạn, vui lòng kiểm tra email của bạn, nếu không thấy email, vui lòng kiểm tra mục Spam. Bạn vẫn có thể đăng nhập vào tài khoản của bạn ngay bây giờ và xác minh email của mình sau."
-          );
+          sendVerifyEmail(form.email).then((res) => {
+            alert(
+              "Chúng tôi đã gửi email xác nhận đến email của bạn, vui lòng kiểm tra email của bạn, nếu không thấy email, vui lòng kiểm tra mục Spam. Bạn vẫn có thể đăng nhập vào tài khoản của bạn ngay bây giờ và xác minh email của mình sau."
+            );
+          });
           navigation.replace(AppRoutes.SIGNIN);
           navigation.reset({
             index: 0,

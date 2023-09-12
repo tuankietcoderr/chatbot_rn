@@ -84,6 +84,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
         fontFamily: AppFonts.bold,
         fontSize: AppFontSizes.h4,
       },
+      headerShadowVisible: true,
     });
   }, []);
 

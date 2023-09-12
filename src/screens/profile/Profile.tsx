@@ -42,14 +42,25 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
       headerTitleStyle: {
         fontFamily: AppFonts.semiBold,
       },
-      headerRight: () => (
-        <TouchableOpacity onPress={onPressLogout}>
-          <Ionicons
-            name="log-out-outline"
-            size={30}
-            color={AppColors.primary}
-          />
-        </TouchableOpacity>
+      headerRight: ({ tintColor }) => (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 14,
+          }}
+        >
+          <TouchableOpacity onPress={onPressRefresh}>
+            <Ionicons name="ios-refresh" size={30} color={tintColor} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onPressLogout}>
+            <Ionicons
+              name="log-out-outline"
+              size={30}
+              color={AppColors.primary}
+            />
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, []);
@@ -62,6 +73,10 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
       dispatch(getCurrentUserThunk());
     }
   }, []);
+
+  function onPressRefresh() {
+    dispatch(getCurrentUserThunk());
+  }
 
   async function onPressLogout() {
     Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất chứ?", [

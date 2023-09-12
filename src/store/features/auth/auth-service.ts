@@ -51,6 +51,9 @@ const signOut = async () => {
 const getCurrentUser = async () => {
   try {
     const response = await getRequest(API.USER.BASE);
+    if (!response.success) {
+      AsyncStorage.removeItem(AppCommon.ACCESS_TOKEN);
+    }
     return response;
   } catch (err) {
     return err;
