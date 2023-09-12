@@ -1,4 +1,4 @@
-package com.groupone.chatbot;
+package com.dsuit.chatbot;
 
 import android.os.Build;
 import android.os.Bundle;

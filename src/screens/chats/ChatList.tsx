@@ -3,10 +3,12 @@ import Empty from "@/components/Empty";
 import { MainHeaderRight } from "@/components/MainHeader";
 import NewChatButton from "@/components/NewChatButton";
 import AppFonts from "@/constants/font";
+import AppRoutes from "@/constants/route";
 import { State } from "@/constants/state";
 import { ModalProvider } from "@/context/ModalContext";
 import MainLayout from "@/layout/MainLayout";
 import { randomUUID } from "@/lib/random";
+import { resetChat } from "@/store/features/chat/chat-slice";
 import { selectRoom } from "@/store/features/room/room-selector";
 import { getRoomsThunk } from "@/store/features/room/room-thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
@@ -43,7 +45,7 @@ const ChatList = ({ navigation }: NativeStackScreenProps<any>) => {
     });
   }, []);
 
-  const { rooms, status } = useAppSelector(selectRoom);
+  const { rooms, status, trigger } = useAppSelector(selectRoom);
   const isLoading = status === State.LOADING;
   const dispatch = useAppDispatch();
 
@@ -55,6 +57,18 @@ const ChatList = ({ navigation }: NativeStackScreenProps<any>) => {
       setRefreshing(false);
     });
   };
+
+  useEffect(() => {
+    if (trigger) {
+      if (rooms.length === 0) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: AppRoutes.CHATS }],
+        });
+      }
+      dispatch(resetChat());
+    }
+  }, [trigger]);
 
   return (
     <View style={styles.container}>

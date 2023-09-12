@@ -1,4 +1,4 @@
-package com.groupone.chatbot;
+package com.dsuit.chatbot;
 
 import android.app.Application;
 import android.content.res.Configuration;

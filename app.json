@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Chatbot",
+    "name": "Hỏi đáp Dịch vụ công",
     "slug": "chatbot",
     "version": "1.0.0",
-    "scheme": "com.groupone.chatbot",
+    "scheme": "com.dsuit.chatbot",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -26,14 +24,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.groupone.chatbot"
+      "package": "com.dsuit.chatbot"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "b036d54d-cb38-487b-9b17-812d7a365aaa"
+        "projectId": "3e4f8a3b-a1af-4a69-9968-85963799c273"
       }
     },
     "owner": "tuankietcoder"

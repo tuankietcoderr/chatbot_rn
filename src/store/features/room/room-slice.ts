@@ -10,18 +10,27 @@ import {
 
 interface IRoomState {
   rooms: IRoom[];
+  trigger: boolean;
   status: State;
 }
 
 const initialState: IRoomState = {
   rooms: [],
+  trigger: false,
   status: State.IDLE,
 };
 
 export const roomSlice = createSlice({
   name: "room",
   initialState,
-  reducers: {},
+  reducers: {
+    resetTrigger: (state) => {
+      state.trigger = false;
+    },
+    resetRoom: (state) => {
+      state.rooms = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getRoomsThunk.pending, (state) => {
@@ -56,6 +65,7 @@ export const roomSlice = createSlice({
         state.rooms = state.rooms?.filter(
           (room) => room._id !== action.payload.data._id
         );
+        state.trigger = true;
       })
       .addCase(deleteRoomThunk.rejected, (state) => {});
   },
@@ -63,4 +73,4 @@ export const roomSlice = createSlice({
 
 export default roomSlice.reducer;
 
-export const {} = roomSlice.actions;
+export const { resetTrigger, resetRoom } = roomSlice.actions;

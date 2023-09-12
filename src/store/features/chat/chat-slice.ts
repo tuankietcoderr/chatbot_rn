@@ -17,6 +17,9 @@ export const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
+    resetChat: (state) => {
+      state.chats = [];
+    },
     afterAddSave: (state, action: PayloadAction<IChatItem>) => {
       state.chats = state.chats.map((chat) => {
         if (chat._id === action.payload._id) {
@@ -66,4 +69,4 @@ export const chatSlice = createSlice({
 
 export default chatSlice.reducer;
 
-export const { afterAddSave, afterRemoveSave } = chatSlice.actions;
+export const { afterAddSave, afterRemoveSave, resetChat } = chatSlice.actions;

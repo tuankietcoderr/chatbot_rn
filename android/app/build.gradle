@@ -81,9 +81,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.groupone.chatbot'
+    namespace 'com.dsuit.chatbot'
     defaultConfig {
-        applicationId 'com.groupone.chatbot'
+        applicationId 'com.dsuit.chatbot'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

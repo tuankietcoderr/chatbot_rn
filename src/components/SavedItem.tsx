@@ -35,7 +35,15 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
 
   const { theme } = useThemeContext();
   const isDarkMode = theme === "dark";
+  const [line, setLine] = useState<number | undefined>(3);
 
+  const onPressLine = () => {
+    if (line === 3) {
+      setLine(undefined);
+    } else {
+      setLine(3);
+    }
+  };
   return (
     <View
       style={[
@@ -59,6 +67,7 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
+            gap: 10,
           }}
         >
           <Text
@@ -66,10 +75,13 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
               styles.title,
               {
                 color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+                flex: 1,
               },
             ]}
+            numberOfLines={line}
+            onPress={onPressLine}
           >
-            {moment(createdAt).format("llll")}
+            {chat?.question}
           </Text>
           <TouchableOpacity
             onPress={onPressUnsave}
@@ -111,7 +123,7 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
             },
           ]}
         >
-          {chat.answer}
+          {chat?.answer}
         </Text>
       </View>
     </View>

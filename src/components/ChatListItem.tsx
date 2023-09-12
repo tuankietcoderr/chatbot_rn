@@ -3,7 +3,9 @@ import AppFonts from "@/constants/font";
 import AppFontSizes from "@/constants/font-size";
 import AppRoutes from "@/constants/route";
 import { useModalContext } from "@/context/ModalContext";
+import { useThemeContext } from "@/context/ThemeContext";
 import { IRoom } from "@/schema/client/room";
+import { resetTrigger } from "@/store/features/room/room-slice";
 import { deleteRoomThunk } from "@/store/features/room/room-thunk";
 import { useAppDispatch } from "@/store/hook";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
@@ -12,7 +14,7 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-root-toast";
 import UpdateRoomModal from "./UpdateRoomModal";
-import { useThemeContext } from "@/context/ThemeContext";
+import { getSavesThunk } from "@/store/features/save/save-thunk";
 
 const ChatListItem = (room: IRoom) => {
   const { _id, title, shortDescription } = room;
@@ -58,6 +60,8 @@ const ChatListItem = (room: IRoom) => {
             Toast.show("Xóa phòng thành công", {
               position: Toast.positions.CENTER,
             });
+            dispatch(resetTrigger());
+            dispatch(getSavesThunk());
           } else {
             alert("Xóa phòng thất bại");
           }
