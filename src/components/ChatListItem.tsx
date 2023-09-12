@@ -99,7 +99,7 @@ const ChatListItem = (room: IRoom) => {
             },
           ]}
         >
-          {deleting ? "Deleting..." : title}
+          {deleting ? "Đang xóa..." : title}
         </Text>
         {shortDescription && (
           <Text style={styles.text} numberOfLines={2}>

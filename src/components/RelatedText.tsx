@@ -36,7 +36,7 @@ const RelatedText = ({ visible }: Props) => {
           {
             backgroundColor: isDarkMode
               ? AppColors.darkMode.black
-              : AppColors.primary,
+              : AppColors.onPrimary,
           },
         ]}
         onPress={onPressQ}

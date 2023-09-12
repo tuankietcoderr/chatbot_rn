@@ -13,14 +13,7 @@ type Props = {
 };
 
 const Related = ({ data, callback, visible }: Props) => {
-  const {
-    chosenRelated,
-    relatedQ,
-    setRelatedQ,
-    setChosenRelated,
-    relatedTthc,
-    setRelatedTthc,
-  } = useBotDataContext();
+  const { chosenRelated, setChosenRelated } = useBotDataContext();
   const onPressQ = () => {
     setChosenRelated(["q"]);
   };

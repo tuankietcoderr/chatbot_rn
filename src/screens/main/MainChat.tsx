@@ -1,6 +1,5 @@
 import { getAnswer } from "@/bot/bot-service";
 import ChatItem from "@/components/ChatItem";
-import ChatbotIcon from "@/components/ChatbotIcon";
 import GeneratingAnswer from "@/components/GeneratingAnswer";
 import InitialChatbot from "@/components/InitialChatbot";
 import { MainHeaderRight, MainHeaderTitle } from "@/components/MainHeader";
@@ -28,13 +27,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRoute } from "@react-navigation/core";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AxiosError } from "axios";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -60,7 +58,8 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   } = useBotDataContext();
   const { theme } = useThemeContext();
   const isDarkTheme = theme === "dark";
-  const { dead, setDead, setCurrentRoomId } = useDeadRoomContext();
+  const { dead, setDead, setCurrentRoomId, currentRoomId } =
+    useDeadRoomContext();
 
   useFocusEffect(
     useCallback(() => {
@@ -99,12 +98,10 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     (async function () {
       if (!roomId) return;
-      setCurrentRoomId((prev) => {
-        if (prev !== roomId) {
-          setDead(true);
-        }
-        return roomId as string;
-      });
+      if (currentRoomId !== roomId) {
+        setDead(true);
+      }
+
       dispatch(getChatsOfRoomThunk(roomId));
     })();
   }, [roomId]);
@@ -114,10 +111,14 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       if (dead) {
         await getAnswer({
           dead: true,
-          roomId,
-        }).finally(() => {
-          setDead(false);
-        });
+          roomId: currentRoomId,
+        })
+          .then(() => {
+            setCurrentRoomId(roomId);
+          })
+          .finally(() => {
+            setDead(false);
+          });
       }
     })();
   }, [dead]);
@@ -239,7 +240,8 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
                       !disableChat &&
                       chatsState.length > 0 &&
                       chatsState[chatsState.length - 1].answer &&
-                      chosenRelated === null
+                      chosenRelated === null &&
+                      renderRelated.length > 0
                     )
                   }
                 />

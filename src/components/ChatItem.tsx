@@ -90,6 +90,8 @@ const ChatItem = ({ chat }: Props) => {
   };
 
   const CANT_UNDERSTAND = "Xin lỗi, tôi không hiểu câu hỏi của bạn";
+  const HELLO_RESPONSE =
+    "Xin chào! Bạn có câu hỏi hoặc vấn đề gì tôi có thể giúp bạn?";
   const { theme } = useThemeContext();
   const isDarkTheme = theme === "dark";
 
@@ -186,96 +188,100 @@ const ChatItem = ({ chat }: Props) => {
               {answer}
             </Text>
           </View>
-          {answer && answer !== CANT_UNDERSTAND && (
-            <View style={styles.actionContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.actionWithIcon,
-                  {
-                    backgroundColor: isSavedState
-                      ? isDarkTheme
-                        ? AppColors.darkMode.primary
-                        : AppColors.primary
-                      : isDarkTheme
-                      ? AppColors.darkMode.white
-                      : AppColors.white,
-                    borderColor: isSavedState
-                      ? AppColors.primary
-                      : AppColors.gray,
-                    borderWidth:
-                      isDarkTheme && isSavedState
-                        ? 0
-                        : StyleSheet.hairlineWidth,
-                  },
-                ]}
-                onPress={isSavedState ? onPressUnsave : onPressSave}
-              >
-                <Ionicons
-                  name={isSavedState ? "ios-bookmark" : "ios-bookmark-outline"}
-                  size={16}
-                  color={
-                    isSavedState
-                      ? isDarkTheme
-                        ? AppColors.darkMode.onPrimary
-                        : AppColors.onPrimary
-                      : isDarkTheme
-                      ? AppColors.darkMode.black
-                      : AppColors.black
-                  }
-                />
-                <Text
+          {answer &&
+            answer !== CANT_UNDERSTAND &&
+            answer !== HELLO_RESPONSE && (
+              <View style={styles.actionContainer}>
+                <TouchableOpacity
                   style={[
-                    styles.text,
+                    styles.actionWithIcon,
                     {
-                      color: isSavedState
+                      backgroundColor: isSavedState
+                        ? isDarkTheme
+                          ? AppColors.darkMode.primary
+                          : AppColors.primary
+                        : isDarkTheme
+                        ? AppColors.darkMode.white
+                        : AppColors.white,
+                      borderColor: isSavedState
+                        ? AppColors.primary
+                        : AppColors.gray,
+                      borderWidth:
+                        isDarkTheme && isSavedState
+                          ? 0
+                          : StyleSheet.hairlineWidth,
+                    },
+                  ]}
+                  onPress={isSavedState ? onPressUnsave : onPressSave}
+                >
+                  <Ionicons
+                    name={
+                      isSavedState ? "ios-bookmark" : "ios-bookmark-outline"
+                    }
+                    size={16}
+                    color={
+                      isSavedState
                         ? isDarkTheme
                           ? AppColors.darkMode.onPrimary
                           : AppColors.onPrimary
                         : isDarkTheme
                         ? AppColors.darkMode.black
-                        : AppColors.black,
-                    },
-                  ]}
+                        : AppColors.black
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.text,
+                      {
+                        color: isSavedState
+                          ? isDarkTheme
+                            ? AppColors.darkMode.onPrimary
+                            : AppColors.onPrimary
+                          : isDarkTheme
+                          ? AppColors.darkMode.black
+                          : AppColors.black,
+                      },
+                    ]}
+                  >
+                    {isLoadingSave
+                      ? isSavedState
+                        ? "Đang bỏ lưu..."
+                        : "Đang lưu..."
+                      : isSavedState
+                      ? "Bỏ lưu"
+                      : "Lưu"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionWithIcon, {}]}
+                  onPress={onCopyToClipboard}
                 >
-                  {isLoadingSave
-                    ? isSavedState
-                      ? "Đang bỏ lưu..."
-                      : "Đang lưu..."
-                    : isSavedState
-                    ? "Bỏ lưu"
-                    : "Lưu"}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionWithIcon, {}]}
-                onPress={onCopyToClipboard}
-              >
-                <Ionicons
-                  name="ios-copy-outline"
-                  size={16}
-                  color={
-                    isDarkTheme ? AppColors.darkMode.black : AppColors.black
-                  }
-                />
-                <Text
-                  style={[
-                    styles.text,
-                    {
-                      color: isDarkTheme
-                        ? AppColors.darkMode.black
-                        : AppColors.black,
-                    },
-                  ]}
-                >
-                  {isCopying === null
-                    ? "Sao chép"
-                    : isCopying === true
-                    ? "Đang sao chép..."
-                    : "Đã sao chép"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+                  <Ionicons
+                    name="ios-copy-outline"
+                    size={16}
+                    color={
+                      isDarkTheme ? AppColors.darkMode.black : AppColors.black
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.text,
+                      {
+                        color: isDarkTheme
+                          ? AppColors.darkMode.black
+                          : AppColors.black,
+                      },
+                    ]}
+                  >
+                    {isCopying === null
+                      ? "Sao chép"
+                      : isCopying === true
+                      ? "Đang sao chép..."
+                      : "Đã sao chép"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
         </View>
 
         {reference && reference?.length > 0 && answer && (
