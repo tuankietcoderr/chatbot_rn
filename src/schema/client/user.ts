@@ -3,4 +3,6 @@ export interface IUser {
   username: string;
   password?: string;
   fullName?: string;
+  email: string;
+  is_email_verified: boolean;
 }

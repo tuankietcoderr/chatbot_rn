@@ -1,5 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiInstance, getRequest, postRequest } from "@/api/instance";
+import {
+  apiInstance,
+  getRequest,
+  postRequest,
+  putRequest,
+} from "@/api/instance";
 import { AppCommon } from "@/constants/common";
 import { IUser } from "@/schema/client/user";
 import { API } from "@/constants/api";
@@ -8,7 +13,7 @@ const signIn = async ({
   username,
   password,
 }: {
-  username: string;
+  username?: string;
   password: string;
 }) => {
   try {
@@ -52,4 +57,60 @@ const getCurrentUser = async () => {
   }
 };
 
-export { signIn, signOut, signUp, getCurrentUser };
+const updateUser = async (user: IUser) => {
+  try {
+    const response = await putRequest(API.USER.BASE, user);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+const resetPassword = async (email: string) => {
+  try {
+    const response = await getRequest(
+      API.USER.FORGOT_PASSWORD + "?email=" + email
+    );
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+const sendVerifyEmail = async (email: string) => {
+  try {
+    const response = await postRequest(API.USER.SEND_EMAIL + "?email=" + email);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+const changePassword = async ({
+  oldPassword,
+  newPassword,
+}: {
+  oldPassword: string;
+  newPassword: string;
+}) => {
+  try {
+    const response = await putRequest(API.USER.CHANGE_PASSWORD, {
+      oldPassword,
+      newPassword,
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export {
+  signIn,
+  signOut,
+  signUp,
+  getCurrentUser,
+  updateUser,
+  resetPassword,
+  sendVerifyEmail,
+  changePassword,
+};

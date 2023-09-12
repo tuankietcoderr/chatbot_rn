@@ -90,6 +90,10 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
     });
   };
 
+  const onPressForgotPassword = () => {
+    navigation.navigate(AppRoutes.FORGOT_PASSWORD);
+  };
+
   const { theme } = useThemeContext();
   const isDarkMode = theme === "dark";
 
@@ -124,6 +128,26 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
             secureTextEntry
           />
         </View>
+        <TouchableOpacity onPress={onPressForgotPassword}>
+          <Text
+            style={[
+              styles.text,
+              {
+                color: isDarkMode
+                  ? AppColors.darkMode.primary
+                  : AppColors.primary,
+                textAlign: "right",
+                marginRight: 20,
+                textDecorationColor: isDarkMode
+                  ? AppColors.darkMode.primary
+                  : AppColors.primary,
+                textDecorationLine: "underline",
+              },
+            ]}
+          >
+            Quên mật khẩu?
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.signinBtn,

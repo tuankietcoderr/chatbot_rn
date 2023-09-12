@@ -98,11 +98,10 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
     (async function () {
       if (!roomId) return;
+      dispatch(getChatsOfRoomThunk(roomId));
       if (currentRoomId !== roomId) {
         setDead(true);
       }
-
-      dispatch(getChatsOfRoomThunk(roomId));
     })();
   }, [roomId]);
 

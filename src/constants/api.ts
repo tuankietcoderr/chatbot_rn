@@ -4,6 +4,9 @@ export const API = {
     BASE: "/user",
     SIGNIN: "/user/signin",
     SIGNUP: "/user/signup",
+    FORGOT_PASSWORD: "/user/forgot-password",
+    SEND_EMAIL: "/user/send-email",
+    CHANGE_PASSWORD: "/user/change-password",
   },
   CHAT: {
     BASE: "/chat",

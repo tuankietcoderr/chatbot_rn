@@ -9,6 +9,9 @@ const AppRoutes = {
   USER_DATA: "UserData",
   LANGUAGE: "Language",
   FONT: "Font",
+  FORGOT_PASSWORD: "ForgotPassword",
+  CHANGE_PASSWORD: "ChangePassword",
+  EDIT_PROFILE: "EditProfile",
 };
 
 export default AppRoutes;

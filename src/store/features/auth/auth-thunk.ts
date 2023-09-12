@@ -1,5 +1,11 @@
 import { ConfigureStoreOptions, createAsyncThunk } from "@reduxjs/toolkit";
-import { getCurrentUser, signIn, signOut, signUp } from "./auth-service";
+import {
+  getCurrentUser,
+  signIn,
+  signOut,
+  signUp,
+  updateUser,
+} from "./auth-service";
 import { IUser } from "@/schema/client/user";
 
 const getCurrentUserThunk = createAsyncThunk(
@@ -17,7 +23,7 @@ const signUpThunk = createAsyncThunk("auth/signUp", async (user: IUser) => {
 
 const signInThunk = createAsyncThunk(
   "auth/signIn",
-  async (data: { username: string; password: string }) => {
+  async (data: { username?: string; password: string }) => {
     const response = await signIn(data);
     return response;
   }
@@ -31,4 +37,18 @@ const signOutThunk = createAsyncThunk("auth/signOut", async () => {
   }
 });
 
-export { getCurrentUserThunk, signInThunk, signUpThunk, signOutThunk };
+const updateUserThunk = createAsyncThunk(
+  "auth/updateUser",
+  async (user: IUser) => {
+    const response = await updateUser(user);
+    return response;
+  }
+);
+
+export {
+  getCurrentUserThunk,
+  signInThunk,
+  signUpThunk,
+  signOutThunk,
+  updateUserThunk,
+};

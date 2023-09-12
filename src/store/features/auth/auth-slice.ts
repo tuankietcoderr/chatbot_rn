@@ -5,6 +5,7 @@ import {
   signInThunk,
   signOutThunk,
   signUpThunk,
+  updateUserThunk,
 } from "./auth-thunk";
 import { IUser } from "@/schema/client/user";
 
@@ -69,6 +70,13 @@ export const authSlice = createSlice({
         state.isLogged = false;
       })
       .addCase(signOutThunk.rejected, (state) => {});
+
+    builder
+      .addCase(updateUserThunk.pending, (state) => {})
+      .addCase(updateUserThunk.fulfilled, (state, action) => {
+        state.user = action.payload.data;
+      })
+      .addCase(updateUserThunk.rejected, (state) => {});
   },
 });
 

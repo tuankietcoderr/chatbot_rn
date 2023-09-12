@@ -31,7 +31,7 @@ export const getRequest = async (url: string, params?: any) => {
   }
 };
 
-export const postRequest = async (url: string, data: any, params?: any) => {
+export const postRequest = async (url: string, data?: any, params?: any) => {
   try {
     const token = await getToken();
     const res = await apiInstance.post(url, data, {

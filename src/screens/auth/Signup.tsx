@@ -45,6 +45,8 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     password: "",
     confirmPassword: "",
     fullName: "",
+    email: "",
+    is_email_verified: false,
   });
 
   const onInputChange = (text: string, name: keyof SignupForm) => {
@@ -63,7 +65,7 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
   };
 
   const validateForm = (): boolean => {
-    const { fullName, username, password, confirmPassword } = form;
+    const { fullName, username, password, confirmPassword, email } = form;
 
     if (!fullName) {
       alert("Tên đầy đủ là bắt buộc");
@@ -80,9 +82,12 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
       return false;
     }
 
-    const usernameRegex = new RegExp("^\\w[\\w.]{2,18}\\w$");
-    if (!usernameRegex.test(username)) {
+    if (!AppCommon.USERNAME_REGEX.test(username)) {
       alert("Tên người dùng không hợp lệ");
+      return false;
+    }
+    if (!AppCommon.EMAIL_REGEX.test(email)) {
+      alert("Email không hợp lệ");
       return false;
     }
 
@@ -90,12 +95,7 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
       alert("Mật khẩu là bắt buộc");
       return false;
     }
-
-    const passwordRegex = new RegExp(
-      /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/
-    );
-
-    if (!passwordRegex.test(password)) {
+    if (!AppCommon.PASSWORD_REGEX.test(password)) {
       alert(
         "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
       );
@@ -118,7 +118,9 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     dispatch(signUpThunk(form)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         if (res.payload.success) {
-          alert("Đăng ký thành công. Đăng nhập ngay!");
+          alert(
+            "Chúng tôi đã gửi email xác nhận đến email của bạn, vui lòng kiểm tra email của bạn, nếu không thấy email, vui lòng kiểm tra mục Spam. Bạn vẫn có thể đăng nhập vào tài khoản của bạn ngay bây giờ và xác minh email của mình sau."
+          );
           navigation.replace(AppRoutes.SIGNIN);
           navigation.reset({
             index: 0,
@@ -165,6 +167,14 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
             placeholder="Nhập tên người dùng của bạn"
             autoComplete="username"
             keyboardType="default"
+          />
+          <MyTextInput
+            label="Email"
+            value={form.email}
+            onChangeText={(text) => onInputChange(text, "email")}
+            placeholder="Nhập email của bạn"
+            autoComplete="email"
+            keyboardType="email-address"
           />
           <MyTextInput
             label="Mật khẩu"

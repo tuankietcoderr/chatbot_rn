@@ -2,6 +2,7 @@ import ChatListItem from "@/components/ChatListItem";
 import Empty from "@/components/Empty";
 import { MainHeaderRight } from "@/components/MainHeader";
 import NewChatButton from "@/components/NewChatButton";
+import VerifyEmailSticky from "@/components/VerifyEmailSticky";
 import AppFonts from "@/constants/font";
 import AppRoutes from "@/constants/route";
 import { State } from "@/constants/state";
@@ -65,13 +66,14 @@ const ChatList = ({ navigation }: NativeStackScreenProps<any>) => {
           index: 0,
           routes: [{ name: AppRoutes.CHATS }],
         });
+        dispatch(resetChat());
       }
-      dispatch(resetChat());
     }
   }, [trigger]);
 
   return (
     <View style={styles.container}>
+      <VerifyEmailSticky />
       <MainLayout>
         {!isLoading ? (
           <FlatList

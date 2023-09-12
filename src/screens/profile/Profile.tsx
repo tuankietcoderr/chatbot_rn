@@ -126,14 +126,40 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
             {user?.fullName}
           </Text>
           <Text style={styles.username}>@{user?.username}</Text>
-          {/* <TouchableOpacity style={styles.editProfileBtn}>
-          <Text style={styles.editProfileBtnText}>Sửa hồ sơ</Text>
-          <FontAwesome
-            name="angle-right"
-            size={24}
-            color={AppColors.onPrimary}
-          />
-        </TouchableOpacity> */}
+          <Text style={styles.username}>
+            {user?.is_email_verified ? "Đã" : "Chưa"} xác thực email
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.editProfileBtn,
+              {
+                backgroundColor: isDarkMode
+                  ? AppColors.darkMode.primary
+                  : AppColors.primary,
+              },
+            ]}
+            onPress={() => navigation.navigate(AppRoutes.EDIT_PROFILE)}
+          >
+            <Text
+              style={[
+                styles.editProfileBtnText,
+                {
+                  color: isDarkMode
+                    ? AppColors.darkMode.onPrimary
+                    : AppColors.onPrimary,
+                },
+              ]}
+            >
+              Sửa hồ sơ
+            </Text>
+            <FontAwesome
+              name="angle-right"
+              size={24}
+              color={
+                isDarkMode ? AppColors.darkMode.onPrimary : AppColors.onPrimary
+              }
+            />
+          </TouchableOpacity>
         </View>
         <View>
           <Text style={styles.title}>Nội dung</Text>
