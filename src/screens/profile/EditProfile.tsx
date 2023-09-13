@@ -20,6 +20,7 @@ import AppFontSizes from "@/constants/font-size";
 import { AppCommon } from "@/constants/common";
 import { updateUserThunk } from "@/store/features/auth/auth-thunk";
 import AppRoutes from "@/constants/route";
+import useAlert from "@/hooks/useAlert";
 
 const EditProfile = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -53,6 +54,7 @@ const EditProfile = ({ navigation }: NativeStackScreenProps<any>) => {
   }, [navigation]);
 
   const user = useAppSelector(selectUser);
+  const _alert = useAlert();
 
   const { theme } = useThemeContext();
   const isDarkMode = theme === "dark";
@@ -75,23 +77,22 @@ const EditProfile = ({ navigation }: NativeStackScreenProps<any>) => {
 
   const onPressSave = () => {
     if (userState.fullName === "" || userState.username === "")
-      return alert("Vui lòng điền đầy đủ thông tin");
+      return _alert.show("Vui lòng điền đầy đủ thông tin");
     if (!AppCommon.USERNAME_REGEX.test(userState.username))
-      return alert("Tên người dùng không hợp lệ");
+      return _alert.show("Tên người dùng không hợp lệ");
 
     setIsLoading(true);
     dispatch(updateUserThunk(userState))
       .then((res) => {
-        console.log({ res });
         if (res.meta.requestStatus === "fulfilled" && res.payload.success) {
-          alert("Cập nhật thành công");
+          _alert.show("Cập nhật thành công");
           navigation.goBack();
         } else {
-          alert("Cập nhật thất bại");
+          _alert.show("Cập nhật thất bại");
         }
       })
       .catch((err) => {
-        alert("Cập nhật thất bại");
+        _alert.show("Cập nhật thất bại");
       })
       .finally(() => setIsLoading(false));
   };

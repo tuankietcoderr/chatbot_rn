@@ -17,6 +17,7 @@ import Toast from "react-native-root-toast";
 import MyModal from "./MyModal";
 import MyTextInput from "./MyTextInput";
 import { useThemeContext } from "@/context/ThemeContext";
+import useAlert from "@/hooks/useAlert";
 
 const UpdateRoomModal = (room: IRoom) => {
   const { isVisible, onModalClose } = useModalContext();
@@ -41,7 +42,7 @@ const UpdateRoomModal = (room: IRoom) => {
             });
             onModalClose();
           } else {
-            alert("Cập nhật phòng thất bại");
+            _alert.show("Cập nhật phòng thất bại");
           }
         }
       })
@@ -52,6 +53,7 @@ const UpdateRoomModal = (room: IRoom) => {
 
   const { theme } = useThemeContext();
   const isDarkMode = theme === "dark";
+  const _alert = useAlert();
 
   return (
     <MyModal

@@ -1,5 +1,5 @@
 import { IData } from "@/schema/server/data";
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 export const BotDataContext = createContext({
   chosenRelated: [] as IData[] | null,

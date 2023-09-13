@@ -16,6 +16,7 @@ import AppFontSizes from "@/constants/font-size";
 import { AppCommon } from "@/constants/common";
 import { resetPassword } from "@/store/features/auth/auth-service";
 import AppRoutes from "@/constants/route";
+import useAlert from "@/hooks/useAlert";
 
 const ForgotPassword = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -38,30 +39,31 @@ const ForgotPassword = ({ navigation }: NativeStackScreenProps<any>) => {
   const [loading, setLoading] = React.useState(false);
   const { theme } = useThemeContext();
   const isDarkMode = theme === "dark";
+  const _alert = useAlert();
 
   const onPressForgotPassword = async () => {
     if (!email) {
-      return alert("Vui lòng nhập email");
+      return _alert.show("Vui lòng nhập email");
     }
 
     if (!AppCommon.EMAIL_REGEX.test(email)) {
-      return alert("Email không hợp lệ");
+      return _alert.show("Email không hợp lệ");
     }
 
     setLoading(true);
     await resetPassword(email)
       .then((res) => {
         if (res.success) {
-          alert(
+          _alert.show(
             "Chúng tôi đã gửi mật khẩu tạm thời đến email của bạn.Vui lòng kiểm tra email của bạn"
           );
           navigation.navigate(AppRoutes.SIGNIN);
         } else {
-          alert(res.message);
+          _alert.show(res.message);
         }
       })
       .catch((error) => {
-        alert(error.message);
+        _alert.show(error.message);
       })
       .finally(() => {
         setLoading(false);

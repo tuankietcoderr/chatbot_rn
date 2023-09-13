@@ -15,6 +15,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-root-toast";
 import UpdateRoomModal from "./UpdateRoomModal";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
+import useAlert from "@/hooks/useAlert";
 
 const ChatListItem = (room: IRoom) => {
   const { _id, title, shortDescription, index } = room;
@@ -50,6 +51,7 @@ const ChatListItem = (room: IRoom) => {
   };
 
   const [deleting, setDeleting] = useState(false);
+  const _alert = useAlert();
 
   const deleteRoom = async () => {
     setDeleting(true);
@@ -63,7 +65,7 @@ const ChatListItem = (room: IRoom) => {
             dispatch(resetTrigger());
             dispatch(getSavesThunk());
           } else {
-            alert("Xóa phòng thất bại");
+            _alert.show("Xóa phòng thất bại");
           }
         }
       })

@@ -20,6 +20,7 @@ import { selectAuth } from "@/store/features/auth/auth-selector";
 import { State } from "@/constants/state";
 import { signInThunk } from "@/store/features/auth/auth-thunk";
 import { useThemeContext } from "@/context/ThemeContext";
+import useAlert from "@/hooks/useAlert";
 
 const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -45,6 +46,8 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
     password: "",
   });
 
+  const _alert = useAlert();
+
   const onInputChange = (text: string, name: keyof SigninForm) => {
     setForm({
       ...form,
@@ -59,11 +62,12 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
   const validateForm = (): boolean => {
     const { first_value, password } = form;
     if (!first_value) {
-      alert("Tên người dùng/email là bắt buộc");
+      _alert.show("Tên người dùng/email là bắt buộc");
+
       return false;
     }
     if (!password) {
-      alert("Mật khẩu là bắt buộc");
+      _alert.show("Mật khẩu là bắt buộc");
       return false;
     }
     return true;
@@ -84,7 +88,7 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
             routes: [{ name: AppRoutes.CHATS }],
           });
         } else {
-          alert(res.payload.message);
+          _alert.show(res.payload.message);
         }
       }
     });

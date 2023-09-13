@@ -15,6 +15,7 @@ import AppFontSizes from "@/constants/font-size";
 import { useThemeContext } from "@/context/ThemeContext";
 import { changePassword } from "@/store/features/auth/auth-service";
 import { AppCommon } from "@/constants/common";
+import useAlert from "@/hooks/useAlert";
 
 const ChangePassword = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -54,18 +55,19 @@ const ChangePassword = ({ navigation }: NativeStackScreenProps<any>) => {
       [name]: text,
     });
   };
+  const _alert = useAlert();
 
   const onPressSave = async () => {
     if (!form.oldPassword || !form.newPassword || !form.confirmPassword) {
-      alert("Vui lòng nhập đầy đủ thông tin");
+      _alert.show("Vui lòng nhập đầy đủ thông tin");
       return;
     }
     if (!AppCommon.PASSWORD_REGEX.test(form.newPassword)) {
-      alert("Mật khẩu mới không hợp lệ");
+      _alert.show("Mật khẩu mới không hợp lệ");
       return;
     }
     if (form.newPassword !== form.confirmPassword) {
-      alert("Mật khẩu không trùng khớp");
+      _alert.show("Mật khẩu không trùng khớp");
       return;
     }
     setIsLoading(true);
@@ -75,14 +77,14 @@ const ChangePassword = ({ navigation }: NativeStackScreenProps<any>) => {
     })
       .then((res) => {
         if (res.success) {
-          alert("Đổi mật khẩu thành công");
+          _alert.show("Đổi mật khẩu thành công");
           navigation.goBack();
         } else {
-          alert(res.message);
+          _alert.show(res.message);
         }
       })
       .catch((err) => {
-        alert(err.message);
+        _alert.show(err.message);
       })
       .finally(() => {
         setIsLoading(false);

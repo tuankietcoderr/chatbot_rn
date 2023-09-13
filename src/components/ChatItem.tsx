@@ -23,6 +23,7 @@ import Toast from "react-native-root-toast";
 import { selectUser } from "@/store/features/auth/auth-selector";
 import ChatbotIcon from "./ChatbotIcon";
 import { useThemeContext } from "@/context/ThemeContext";
+import useAlert from "@/hooks/useAlert";
 
 type Props = {
   chat: IChatItem;
@@ -31,6 +32,7 @@ type Props = {
 const ChatItem = ({ chat }: Props) => {
   const { question, answer, reference, isSaved, _id } = chat;
   const [isSavedState, setIsSavedState] = useState(isSaved);
+  const _alert = useAlert();
 
   const dispatch = useAppDispatch();
   const [isLoadingSave, setIsLoadingSave] = useState(false);
@@ -45,7 +47,7 @@ const ChatItem = ({ chat }: Props) => {
             setIsSavedState(true);
             Toast.show("Lưu thành công");
           } else {
-            alert(res.payload.message);
+            _alert.show(res.payload.message);
           }
         }
       })
@@ -63,7 +65,7 @@ const ChatItem = ({ chat }: Props) => {
             Toast.show("Bỏ lưu thành công");
             setIsSavedState(false);
           } else {
-            alert(res.payload.message);
+            _alert.show(res.payload.message);
           }
         }
       })

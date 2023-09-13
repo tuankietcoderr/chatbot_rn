@@ -11,10 +11,13 @@ import { Ionicons } from "@expo/vector-icons";
 import AppColors from "@/constants/color";
 import AppFonts from "@/constants/font";
 import { useThemeContext } from "@/context/ThemeContext";
+import useAlert from "@/hooks/useAlert";
 
 const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
   const dispatch = useAppDispatch();
   const [isLoadingSave, setIsLoadingSave] = useState(false);
+  const _alert = useAlert();
+
   const onPressUnsave = async () => {
     setIsLoadingSave(true);
     dispatch(removeSaveThunk(_id!))
@@ -24,7 +27,7 @@ const SavedItem = ({ _id, createdAt, roomId, chat }: ISave) => {
             Toast.show("Bỏ lưu thành công");
             dispatch(afterRemoveSave({ _id: res.payload.data.chat }));
           } else {
-            alert(res.payload.message);
+            _alert.show(res.payload.message);
           }
         }
       })

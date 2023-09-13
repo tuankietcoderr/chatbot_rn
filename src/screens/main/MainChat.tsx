@@ -11,6 +11,7 @@ import { State } from "@/constants/state";
 import { useBotDataContext } from "@/context/BotDataContext";
 import { useDeadRoomContext } from "@/context/DeadRoomContext";
 import { useThemeContext } from "@/context/ThemeContext";
+import useAlert from "@/hooks/useAlert";
 import { randomUUID } from "@/lib/random";
 import { IChatItem } from "@/schema/client/chat-item";
 import { IAnswer } from "@/schema/server/answer";
@@ -61,6 +62,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     setRelatedTthc,
   } = useBotDataContext();
   const { theme } = useThemeContext();
+  const _alert = useAlert();
   const isDarkTheme = theme === "dark";
   const { dead, setDead, setCurrentRoomId, currentRoomId } =
     useDeadRoomContext();
@@ -181,7 +183,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       roomId,
     });
     if (answerRes instanceof AxiosError) {
-      alert(answerRes.message);
+      _alert.show(answerRes.message);
       setDisableChat(false);
       setChatsState((prev) => {
         const newPrev = [...prev];

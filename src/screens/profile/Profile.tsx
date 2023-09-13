@@ -4,7 +4,7 @@ import AppFonts from "@/constants/font";
 import AppFontSizes from "@/constants/font-size";
 import AppRoutes from "@/constants/route";
 import MainLayout from "@/layout/MainLayout";
-import { selectUser } from "@/store/features/auth/auth-selector";
+import { selectAuth, selectUser } from "@/store/features/auth/auth-selector";
 import {
   getCurrentUserThunk,
   signOutThunk,
@@ -19,16 +19,18 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
 import {
-  Alert,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import appData from "../../../app.json";
 import { useThemeContext } from "@/context/ThemeContext";
 import React from "react";
+import useAlert from "@/hooks/useAlert";
+import { State } from "@/constants/state";
 
 const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -51,9 +53,6 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
             gap: 14,
           }}
         >
-          <TouchableOpacity onPress={onPressRefresh}>
-            <Ionicons name="ios-refresh" size={30} color={tintColor} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={onPressLogout}>
             <Ionicons
               name="log-out-outline"
@@ -67,7 +66,8 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
   }, []);
 
   const dispatch = useAppDispatch();
-  const user = useAppSelector(selectUser);
+  const { user, status } = useAppSelector(selectAuth);
+  const _alert = useAlert();
 
   useEffect(() => {
     if (!user) {
@@ -96,7 +96,7 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
                 routes: [{ name: AppRoutes.SIGNIN }],
               });
             } else {
-              alert("Không thể đăng xuất");
+              _alert.show("Không thể đăng xuất");
             }
           });
         },
@@ -142,9 +142,28 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
             {user?.fullName}
           </Text>
           <Text style={styles.username}>@{user?.username}</Text>
-          <Text style={styles.username}>
-            {user?.is_email_verified ? "Đã" : "Chưa"} xác thực email
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <Text style={styles.username}>
+              {status === State.LOADING
+                ? "Đang kiểm tra..."
+                : user?.is_email_verified
+                ? "Đã xác thực email"
+                : "Chưa xác thực email"}
+            </Text>
+            <TouchableOpacity onPress={onPressRefresh}>
+              <Ionicons
+                name="ios-refresh-circle-outline"
+                size={24}
+                color={AppColors.gray}
+              />
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             style={[
               styles.editProfileBtn,

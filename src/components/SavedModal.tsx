@@ -19,11 +19,13 @@ import {
 import Toast from "react-native-root-toast";
 import * as Clipboard from "expo-clipboard";
 import { afterAddSave } from "@/store/features/chat/chat-slice";
+import useAlert from "@/hooks/useAlert";
 
-const SavedModal = ({ _id, content, isSaved }: IChatItem) => {
+const SavedModal = ({ _id, isSaved, answer }: IChatItem) => {
   const { isVisible, onModalClose } = useModalContext();
   const dispatch = useAppDispatch();
   const [isLoadingSave, setIsLoadingSave] = useState(false);
+  const _alert = useAlert();
 
   const onPressSave = async () => {
     setIsLoadingSave(true);
@@ -35,7 +37,7 @@ const SavedModal = ({ _id, content, isSaved }: IChatItem) => {
             onModalClose();
             Toast.show("Saved successfully");
           } else {
-            alert(res.payload.message);
+            _alert.show(res.payload.message);
           }
         }
       })
@@ -45,7 +47,7 @@ const SavedModal = ({ _id, content, isSaved }: IChatItem) => {
   };
 
   const onCopyToClipboard = async () => {
-    await Clipboard.setStringAsync(content)
+    await Clipboard.setStringAsync(answer || "")
       .then(() => {
         Toast.show("Copied to clipboard", {
           position: Toast.positions.CENTER,

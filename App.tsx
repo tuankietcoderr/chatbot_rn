@@ -21,6 +21,7 @@ import { store } from "@/store/store";
 import * as SplashScreen from "expo-splash-screen";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { Provider } from "react-redux";
+import React from "react";
 
 SplashScreen.preventAutoHideAsync();
 export default function App() {

@@ -6,22 +6,25 @@ import { useThemeContext } from "@/context/ThemeContext";
 import { useAppSelector } from "@/store/hook";
 import { selectUser } from "@/store/features/auth/auth-selector";
 import { sendVerifyEmail } from "@/store/features/auth/auth-service";
+import useAlert from "@/hooks/useAlert";
 
 const VerifyEmailSticky = () => {
   const user = useAppSelector(selectUser);
+  const _alert = useAlert();
+
   const onPressVerify = async () => {
     sendVerifyEmail(user?.email || "")
       .then((res) => {
         if (res.success) {
-          alert(
+          _alert.show(
             "Vui lòng kiểm tra email của bạn. Nếu không thấy, vui lòng kiểm tra thư mục Spam"
           );
         } else {
-          alert(res.message);
+          _alert.show(res.message);
         }
       })
       .catch((err) => {
-        alert(err.message);
+        _alert.show(err.message);
       });
   };
   return !user?.is_email_verified ? (

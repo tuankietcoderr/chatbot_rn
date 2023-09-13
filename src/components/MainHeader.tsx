@@ -6,6 +6,7 @@ import { useThemeContext } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;

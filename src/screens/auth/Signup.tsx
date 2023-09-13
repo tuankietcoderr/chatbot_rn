@@ -22,6 +22,7 @@ import { selectAuth } from "@/store/features/auth/auth-selector";
 import { State } from "@/constants/state";
 import { useThemeContext } from "@/context/ThemeContext";
 import { sendVerifyEmail } from "@/store/features/auth/auth-service";
+import useAlert from "@/hooks/useAlert";
 
 const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {
@@ -49,6 +50,7 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     email: "",
     is_email_verified: false,
   });
+  const _alert = useAlert();
 
   const onInputChange = (text: string, name: keyof SignupForm) => {
     setForm({
@@ -69,44 +71,44 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     const { fullName, username, password, confirmPassword, email } = form;
 
     if (!fullName) {
-      alert("Tên đầy đủ là bắt buộc");
+      _alert.show("Tên đầy đủ là bắt buộc");
       return false;
     }
 
     if (!username) {
-      alert("Tên người dùng là bắt buộc");
+      _alert.show("Tên người dùng là bắt buộc");
       return false;
     }
 
     if (username.length < 6) {
-      alert("Tên người dùng phải có ít nhất 6 ký tự");
+      _alert.show("Tên người dùng phải có ít nhất 6 ký tự");
       return false;
     }
 
     if (!AppCommon.USERNAME_REGEX.test(username)) {
-      alert(
+      _alert.show(
         "Tên người dùng không hợp lệ. Tên người dùng chỉ có thể chứa chữ cái thường, số và dấu gạch dưới"
       );
       return false;
     }
     if (!AppCommon.EMAIL_REGEX.test(email)) {
-      alert("Email không hợp lệ");
+      _alert.show("Email không hợp lệ");
       return false;
     }
 
     if (!password) {
-      alert("Mật khẩu là bắt buộc");
+      _alert.show("Mật khẩu là bắt buộc");
       return false;
     }
     if (!AppCommon.PASSWORD_REGEX.test(password)) {
-      alert(
+      _alert.show(
         "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
       );
       return false;
     }
 
     if (password !== confirmPassword) {
-      alert("Mật khẩu không khớp");
+      _alert.show("Mật khẩu không khớp");
       return false;
     }
     return true;
@@ -122,7 +124,7 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
       if (res.meta.requestStatus === "fulfilled") {
         if (res.payload.success) {
           sendVerifyEmail(form.email).then((res) => {
-            alert(
+            _alert.show(
               "Chúng tôi đã gửi email xác nhận đến email của bạn, vui lòng kiểm tra email của bạn, nếu không thấy email, vui lòng kiểm tra mục Spam. Bạn vẫn có thể đăng nhập vào tài khoản của bạn ngay bây giờ và xác minh email của mình sau."
             );
           });
@@ -132,10 +134,10 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
             routes: [{ name: AppRoutes.SIGNIN }],
           });
         } else {
-          alert(res.payload.message);
+          _alert.show(res.payload.message);
         }
       } else {
-        alert("Đăng ký thất bại");
+        _alert.show("Đăng ký thất bại");
       }
     });
   };

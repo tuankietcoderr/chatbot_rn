@@ -3,7 +3,7 @@ import { getCurrentUserThunk } from "@/store/features/auth/auth-thunk";
 import { getRoomsThunk } from "@/store/features/room/room-thunk";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { createContext, useEffect } from "react";
+import React, { createContext, useEffect } from "react";
 
 export const DataContext = createContext({});
 
