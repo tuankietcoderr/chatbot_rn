@@ -6,9 +6,7 @@ export const AppCommon = {
   SCREEN_WIDTH: Dimensions.get("window").width,
   SCREEN_HEIGHT: Dimensions.get("window").height,
   MAX_TIME_TO_LIVE: 60 * 60 * 30, // 30 minutes
-  EMAIL_REGEX: new RegExp(
-    /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]+)(\.[a-zA-Z]{2,5}){1,2}$/
-  ),
+  EMAIL_REGEX: new RegExp(/\S+@\S+\.\S+/),
   PASSWORD_REGEX: new RegExp(
     /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/
   ),

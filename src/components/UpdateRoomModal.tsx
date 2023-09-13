@@ -16,6 +16,7 @@ import {
 import Toast from "react-native-root-toast";
 import MyModal from "./MyModal";
 import MyTextInput from "./MyTextInput";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const UpdateRoomModal = (room: IRoom) => {
   const { isVisible, onModalClose } = useModalContext();
@@ -49,6 +50,9 @@ const UpdateRoomModal = (room: IRoom) => {
       });
   };
 
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
+
   return (
     <MyModal
       isVisible={isVisible}
@@ -56,6 +60,9 @@ const UpdateRoomModal = (room: IRoom) => {
       title="Chỉnh sửa thông tin phòng"
       containerStyle={{
         height: "60%",
+        backgroundColor: isDarkMode
+          ? AppColors.darkMode.white
+          : AppColors.white,
       }}
     >
       <View>
@@ -85,13 +92,27 @@ const UpdateRoomModal = (room: IRoom) => {
             styles.editBtn,
             {
               opacity: isLoading ? 0.5 : 1,
+              backgroundColor: isDarkMode
+                ? AppColors.darkMode.primary
+                : AppColors.primary,
             },
           ]}
           disabled={isLoading}
           onPress={onPressSubmit}
         >
           {isLoading && <ActivityIndicator color={AppColors.white} />}
-          <Text style={styles.editBtnText}>Lưu</Text>
+          <Text
+            style={[
+              styles.editBtnText,
+              {
+                color: isDarkMode
+                  ? AppColors.darkMode.onPrimary
+                  : AppColors.onPrimary,
+              },
+            ]}
+          >
+            Lưu
+          </Text>
         </TouchableOpacity>
       </View>
     </MyModal>

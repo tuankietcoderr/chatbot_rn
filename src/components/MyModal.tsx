@@ -13,6 +13,7 @@ import { Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import AppFonts from "@/constants/font";
 import AppColors from "@/constants/color";
+import { useThemeContext } from "@/context/ThemeContext";
 
 type Props = {
   title: string;
@@ -29,14 +30,49 @@ const MyModal = ({
   title,
   containerStyle,
 }: Props) => {
+  const { theme } = useThemeContext();
+  const isDarkMode = theme === "dark";
   return (
     <Modal animationType="slide" transparent visible={isVisible}>
-      <TouchableOpacity onPress={onClose} style={styles.overlay} />
+      <TouchableOpacity
+        onPress={onClose}
+        style={[
+          styles.overlay,
+          {
+            backgroundColor: isDarkMode
+              ? AppColors.darkMode.black
+              : AppColors.black,
+            opacity: isDarkMode ? 0.1 : 0.5,
+          },
+        ]}
+      />
       <View style={[styles.modalContent, containerStyle]}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>{title}</Text>
+        <View
+          style={[
+            styles.titleContainer,
+            {
+              backgroundColor: isDarkMode
+                ? AppColors.darkMode.white
+                : AppColors.white,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.title,
+              {
+                color: isDarkMode ? AppColors.darkMode.black : AppColors.black,
+              },
+            ]}
+          >
+            {title}
+          </Text>
           <Pressable onPress={onClose}>
-            <MaterialIcons name="close" color={AppColors.black} size={24} />
+            <MaterialIcons
+              name="close"
+              color={isDarkMode ? AppColors.darkMode.black : AppColors.black}
+              size={24}
+            />
           </Pressable>
         </View>
         {children}
