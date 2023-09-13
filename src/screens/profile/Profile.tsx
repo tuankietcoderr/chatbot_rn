@@ -156,13 +156,18 @@ const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
                 ? "Đã xác thực email"
                 : "Chưa xác thực email"}
             </Text>
-            <TouchableOpacity onPress={onPressRefresh}>
-              <Ionicons
-                name="ios-refresh-circle-outline"
-                size={24}
-                color={AppColors.gray}
-              />
-            </TouchableOpacity>
+            {!user?.is_email_verified && (
+              <TouchableOpacity
+                onPress={onPressRefresh}
+                disabled={status === State.LOADING}
+              >
+                <Ionicons
+                  name="ios-refresh-circle-outline"
+                  size={24}
+                  color={AppColors.gray}
+                />
+              </TouchableOpacity>
+            )}
           </View>
           <TouchableOpacity
             style={[
