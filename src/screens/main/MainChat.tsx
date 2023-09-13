@@ -105,6 +105,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     setRelatedTthc([]);
     setDisableChat(false);
     setChosenRelated(["q", "tthc"]);
+    setEndReached(false);
   }
 
   useEffect(() => {
