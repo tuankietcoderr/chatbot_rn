@@ -10,15 +10,15 @@ import { IUser } from "@/schema/client/user";
 import { API } from "@/constants/api";
 
 const signIn = async ({
-  username,
+  first_value,
   password,
 }: {
-  username?: string;
+  first_value?: string;
   password: string;
 }) => {
   try {
     const response = await postRequest(API.USER.SIGNIN, {
-      username,
+      first_value,
       password,
     });
     const data = response;

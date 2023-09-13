@@ -84,7 +84,9 @@ const Signup = ({ navigation }: NativeStackScreenProps<any>) => {
     }
 
     if (!AppCommon.USERNAME_REGEX.test(username)) {
-      alert("Tên người dùng không hợp lệ");
+      alert(
+        "Tên người dùng không hợp lệ. Tên người dùng chỉ có thể chứa chữ cái thường, số và dấu gạch dưới"
+      );
       return false;
     }
     if (!AppCommon.EMAIL_REGEX.test(email)) {

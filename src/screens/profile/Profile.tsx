@@ -28,6 +28,7 @@ import {
 } from "react-native";
 import appData from "../../../app.json";
 import { useThemeContext } from "@/context/ThemeContext";
+import React from "react";
 
 const Profile = ({ navigation }: NativeStackScreenProps<any>) => {
   useEffect(() => {

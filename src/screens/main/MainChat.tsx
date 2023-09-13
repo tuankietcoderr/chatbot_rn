@@ -210,13 +210,11 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
             // initialNumToRender={MAX_ITEM_PER_PAGE}
             ref={flatListRef}
             onContentSizeChange={(w, h) => {
-              setTimeout(() => {
-                flatListRef.current &&
-                  flatListRef.current?.scrollToOffset({
-                    offset: h,
-                    animated: false,
-                  });
-              }, 100);
+              flatListRef.current &&
+                flatListRef.current?.scrollToOffset({
+                  offset: h,
+                  animated: false,
+                });
             }}
             ListEmptyComponent={() => <InitialChatbot />}
             data={chatsState.length > 0 ? [...chatsState, {} as IChatItem] : []}

@@ -23,7 +23,7 @@ const signUpThunk = createAsyncThunk("auth/signUp", async (user: IUser) => {
 
 const signInThunk = createAsyncThunk(
   "auth/signIn",
-  async (data: { username?: string; password: string }) => {
+  async (data: { first_value?: string; password: string }) => {
     const response = await signIn(data);
     return response;
   }

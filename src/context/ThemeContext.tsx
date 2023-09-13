@@ -7,6 +7,7 @@ import {
   useEffect,
 } from "react";
 import { useColorScheme, ColorSchemeName } from "react-native";
+import React from "react";
 
 interface IThemeContext {
   theme: ColorSchemeName;
@@ -25,7 +26,6 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
   const [theme, setTheme] = useState(
     colorScheme || ("light" as ColorSchemeName)
   );
-
   useEffect(() => {
     // Load saved theme from storage
     const getTheme = async () => {

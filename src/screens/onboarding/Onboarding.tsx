@@ -45,7 +45,7 @@ const OnboardingScreen = ({ navigation }: NativeStackScreenProps<any>) => {
               }
             });
           } else {
-            if (isFirstTime === "false") {
+            if (isFirstTime === "true") {
               // ! replace with true
               navigation.replace(AppRoutes.SIGNIN);
               setTimeout(() => {

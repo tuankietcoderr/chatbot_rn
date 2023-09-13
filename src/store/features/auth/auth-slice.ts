@@ -43,9 +43,11 @@ export const authSlice = createSlice({
         state.status = State.LOADING;
       })
       .addCase(signInThunk.fulfilled, (state, action) => {
-        state.user = action.payload.data;
+        if (action.payload.success) {
+          state.user = action.payload.data;
+          state.isLogged = true;
+        }
         state.status = State.IDLE;
-        state.isLogged = true;
       })
       .addCase(signInThunk.rejected, (state) => {
         state.status = State.IDLE;

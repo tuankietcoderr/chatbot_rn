@@ -36,12 +36,12 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
   }, [navigation]);
 
   type SigninForm = {
-    username: string;
+    first_value: string;
     password: string;
   };
 
   const [form, setForm] = React.useState<SigninForm>({
-    username: "",
+    first_value: "",
     password: "",
   });
 
@@ -57,9 +57,9 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
   };
 
   const validateForm = (): boolean => {
-    const { username, password } = form;
-    if (!username) {
-      alert("Tên người dùng là bắt buộc");
+    const { first_value, password } = form;
+    if (!first_value) {
+      alert("Tên người dùng/email là bắt buộc");
       return false;
     }
     if (!password) {
@@ -112,10 +112,10 @@ const Signin = ({ navigation }: NativeStackScreenProps<any>) => {
         </Text>
         <View>
           <MyTextInput
-            label="Tên người dùng"
-            value={form.username}
-            onChangeText={(text) => onInputChange(text, "username")}
-            placeholder="Nhập tên người dùng của bạn"
+            label="Tên người dùng/email"
+            value={form.first_value}
+            onChangeText={(text) => onInputChange(text, "first_value")}
+            placeholder="Nhập tên người dùng/email của bạn"
             autoFocus
           />
           <MyTextInput

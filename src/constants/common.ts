@@ -12,5 +12,5 @@ export const AppCommon = {
   PASSWORD_REGEX: new RegExp(
     /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/
   ),
-  USERNAME_REGEX: new RegExp("^\\w[\\w.]{2,18}\\w$"),
+  USERNAME_REGEX: new RegExp(/^[a-z0-9_]{5,}[a-z]+[0-9]*$/),
 };
