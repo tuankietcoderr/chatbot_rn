@@ -12,7 +12,8 @@
     "build-app-bundle:ios": "eas build -p ios",
     "build-development": "eas build -p android --profile development",
     "dev": "expo start --dev-client",
-    "prebuild": "npx expo prebuild --clean --no-install"
+    "prebuild": "npx expo prebuild --clean --no-install",
+    "submit:chplay": "eas submit --platform android"
   },
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.2.3",
