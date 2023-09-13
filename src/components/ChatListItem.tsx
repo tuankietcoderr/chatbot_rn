@@ -17,12 +17,12 @@ import UpdateRoomModal from "./UpdateRoomModal";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
 
 const ChatListItem = (room: IRoom) => {
-  const { _id, title, shortDescription } = room;
+  const { _id, title, shortDescription, index } = room;
   const navigation = useNavigation<any>();
   const { onModalOpen } = useModalContext();
   const dispatch = useAppDispatch();
   const onPressItem = () => {
-    navigation.navigate(AppRoutes.MAIN, { roomId: _id });
+    navigation.navigate(AppRoutes.MAIN, { roomId: _id, index });
   };
 
   const onPressEdit = () => {

@@ -25,7 +25,10 @@ const NewChatButton = () => {
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
-            navigate.navigate(AppRoutes.MAIN, { roomId: res.payload.data._id });
+            navigate.navigate(AppRoutes.MAIN, {
+              roomId: res.payload.data._id,
+              index: res.payload.data.index,
+            });
           }
         }
       })

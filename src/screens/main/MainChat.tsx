@@ -3,6 +3,7 @@ import ChatItem from "@/components/ChatItem";
 import GeneratingAnswer from "@/components/GeneratingAnswer";
 import InitialChatbot from "@/components/InitialChatbot";
 import { MainHeaderRight, MainHeaderTitle } from "@/components/MainHeader";
+import Overlay from "@/components/Overlay";
 import Related from "@/components/Related";
 import RelatedText from "@/components/RelatedText";
 import { AppCommon } from "@/constants/common";
@@ -46,8 +47,11 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   const { chats, status: chatStatus } = useAppSelector(selectChat);
   const isChatLoading = chatStatus === State.LOADING;
   const params = useRoute<any>();
-  const roomId = params?.params?.roomId;
-  const [chatsState, setChatsState] = useState<IChatItem[]>([]);
+  const { roomId, index } = params?.params;
+  const [chatsState, setChatsState] = useState<IChatItem[]>(
+    Array<IChatItem>(10).fill({} as IChatItem)
+  );
+  const [endReached, setEndReached] = React.useState<boolean>(false);
   const {
     chosenRelated,
     relatedQ,
@@ -86,15 +90,22 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
       },
       headerShadowVisible: true,
     });
+    return () => {
+      reset();
+    };
   }, []);
 
   useEffect(() => {
+    reset();
+  }, [roomId]);
+
+  function reset() {
+    setEndReached(false);
     setRelatedQ([]);
     setRelatedTthc([]);
     setDisableChat(false);
     setChosenRelated(["q", "tthc"]);
-    setChatsState([]);
-  }, [roomId]);
+  }
 
   useEffect(() => {
     (async function () {
@@ -104,7 +115,7 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
         setDead(true);
       }
     })();
-  }, [roomId]);
+  }, [roomId, index]);
 
   useEffect(() => {
     (async function () {
@@ -124,11 +135,13 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
   }, [dead]);
 
   useEffect(() => {
-    if (chats && chats.length > 0) {
+    if (chats) {
       setChatsState(chats);
+      if (chats.length < MAX_ITEM_PER_PAGE) {
+        setEndReached(true);
+      }
     }
   }, [chats]);
-
   const [message, setMessage] = React.useState<string>("");
   const [disableChat, setDisableChat] = React.useState<boolean>(false);
 
@@ -197,18 +210,36 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
     JSON.stringify(chosenRelated) === JSON.stringify(["q"])
       ? relatedQ
       : relatedTthc;
-
   return (
     <View style={styles.container}>
       <View
         style={{
           flex: 1,
+          position: "relative",
         }}
       >
+        <Overlay
+          visible={!endReached}
+          style={{
+            backgroundColor: isDarkTheme
+              ? AppColors.darkMode.white
+              : AppColors.white,
+          }}
+        >
+          <ActivityIndicator
+            size={"large"}
+            color={isDarkTheme ? AppColors.darkMode.black : AppColors.primary}
+          />
+        </Overlay>
         {!isChatLoading ? (
           <FlatList
-            // initialNumToRender={MAX_ITEM_PER_PAGE}
+            initialNumToRender={MAX_ITEM_PER_PAGE}
             ref={flatListRef}
+            onEndReached={() => {
+              if (!endReached) {
+                setEndReached(true);
+              }
+            }}
             onContentSizeChange={(w, h) => {
               flatListRef.current &&
                 flatListRef.current?.scrollToOffset({
@@ -289,14 +320,20 @@ const MainChat = ({ navigation }: NativeStackScreenProps<any>) => {
               color: isDarkTheme ? AppColors.darkMode.black : AppColors.black,
             },
           ]}
-          placeholder={disableChat ? "Đang trả lời..." : "Nhập câu hỏi của bạn"}
+          placeholder={
+            !endReached
+              ? "Đang tải..."
+              : disableChat
+              ? "Đang trả lời..."
+              : "Nhập câu hỏi của bạn"
+          }
           placeholderTextColor={
             isDarkTheme ? AppColors.darkMode.gray : AppColors.gray
           }
           onChangeText={onInputChange}
           value={message}
           multiline
-          editable={!disableChat}
+          editable={!disableChat && endReached}
           maxLength={150}
           onFocus={() => {
             if (chatsState.length > 0) {
