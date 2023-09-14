@@ -16,6 +16,7 @@ import Toast from "react-native-root-toast";
 import UpdateRoomModal from "./UpdateRoomModal";
 import { getSavesThunk } from "@/store/features/save/save-thunk";
 import useAlert from "@/hooks/useAlert";
+import { getAnswer } from "@/bot/bot-service";
 
 const ChatListItem = (room: IRoom) => {
   const { _id, title, shortDescription, index } = room;
@@ -56,7 +57,7 @@ const ChatListItem = (room: IRoom) => {
   const deleteRoom = async () => {
     setDeleting(true);
     dispatch(deleteRoomThunk(_id!))
-      .then((res) => {
+      .then(async (res) => {
         if (res.meta.requestStatus === "fulfilled") {
           if (res.payload.success) {
             Toast.show("Xóa phòng thành công", {
@@ -64,6 +65,10 @@ const ChatListItem = (room: IRoom) => {
             });
             dispatch(resetTrigger());
             dispatch(getSavesThunk());
+            await getAnswer({
+              roomId: _id!,
+              dead: true,
+            });
           } else {
             _alert.show("Xóa phòng thất bại");
           }
